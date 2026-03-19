@@ -2,9 +2,9 @@ export function Logo() {
   return (
     <div className="flex items-center">
       <img
-        src="https://via.placeholder.com/150"
+        src="/rotaicone.webp"
         alt="Logo"
-        className="h-9 w-9 rounded-md object-contain"
+        className="h-24 w-24 rounded-md object-contain"
       />
     </div>
   )
