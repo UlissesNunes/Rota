@@ -7,7 +7,7 @@ children: React.ReactNode
 
 export function Template({ children }: TemplateProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900 dark:bg-black dark:text-white">
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 dark:bg-black dark:text-white/80">
       <HeadingRota />
       <main className="flex flex-1 w-full items-center justify-center">{children}</main>
       <FooterRota />
