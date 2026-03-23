@@ -10,7 +10,7 @@ export function FooterRota() {
               Rota
             </div>
             <div className="text-xs text-slate-600 dark:text-white/70">
-              © {year} Rota. Todos os direitos reservados.
+              © {year} Produto da Leziert. Todos os direitos reservados.
             </div>
           </div>
 
