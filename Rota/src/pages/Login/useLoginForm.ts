@@ -37,7 +37,7 @@ export function useLoginForm() {
       setFormData({ ...formData, [field]: e.target.value });
     };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validate(formData);
     setErrors(validationErrors);

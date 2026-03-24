@@ -1,13 +1,18 @@
 
 import './App.css'
-import { LoginRota } from './pages/Login/LoginRota'
+import { AuthProvider } from './contexts/AuthProvider';
 
-function App() {
+
+// src/App.tsx
+
+import { AppRoutes } from "./routes/AppRoutes";
+
+export default function App() {
   return (
-  <>
-  <LoginRota />
-  </>
-  )
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
 }
 
-export default App
+
