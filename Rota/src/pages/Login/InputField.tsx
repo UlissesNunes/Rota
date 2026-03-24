@@ -28,6 +28,7 @@ export function InputField({
         type={type}
         value={value}
         onChange={onChange}
+        autoComplete="current-password"
         className={`mt-1 w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FE751B] dark:bg-black/60 dark:text-white ${
           error ? "border-red-500" : "border-slate-300"
         }`}

@@ -29,6 +29,8 @@ export function CadastroRota() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="new-password"
+
           className="w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-[#FE751B]"
         />
         <input

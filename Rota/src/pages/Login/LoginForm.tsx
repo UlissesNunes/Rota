@@ -23,6 +23,7 @@ export function LoginForm() {
         value={formData.password}
         onChange={handleChange("password")}
         error={errors.password}
+        
       />
 
       <button
