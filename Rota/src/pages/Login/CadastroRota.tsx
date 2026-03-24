@@ -1,6 +1,7 @@
 // src/pages/Cadastro.tsx
 import { useState } from "react";
 import { useAuth } from "../../contexts/useAuth";
+import { Template } from "../../templates/template";
 
 
 export function CadastroRota() {
@@ -15,7 +16,7 @@ export function CadastroRota() {
   };
 
   return (
-    
+    <Template>
     <div className="flex min-h-screen items-center justify-center">
       
       <form
@@ -49,5 +50,6 @@ export function CadastroRota() {
         </button>
       </form>
     </div>
+    </Template>
   );
 }

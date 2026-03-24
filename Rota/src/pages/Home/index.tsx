@@ -5,7 +5,8 @@ import { useAuth } from "../../contexts/useAuth";
 
 export function Home() {
   const { state, logout } = useAuth();
-
+console.log(state)
+console.log(import.meta.env);
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-black/80">
       <div className="w-full max-w-lg rounded-lg border border-[#FE751B]/40 bg-white/80 p-6 shadow-lg backdrop-blur dark:bg-black/40">
