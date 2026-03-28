@@ -1,7 +1,7 @@
-import { useAuthDomain } from "../domain/auth";
+import { useAuthentic } from "../application/useAuthentic";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const auth = useAuthDomain();
+  const auth = useAuthentic();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 }

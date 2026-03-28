@@ -1,10 +1,7 @@
 // src/contexts/AuthContext.tsx
-import { createContext} from "react";
-import { useAuthDomain } from "../domain/auth";
+import { createContext } from "react";
+import { useAuthentic } from "../application/useAuthentic";
 
-export const AuthContext = createContext<ReturnType<typeof useAuthDomain> | undefined>(undefined);
-
-
-
+export const AuthContext = createContext<ReturnType<typeof useAuthentic> | null>(null);
 
 

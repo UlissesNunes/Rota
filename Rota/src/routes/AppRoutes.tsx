@@ -2,14 +2,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { LoginRota } from "../pages/Login/LoginRota";
-
+import { CadastroRota } from "../pages/Login/CadastroRota";
 import { Home } from "../pages/Home";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { CadastroRota } from "../pages/Login/CadastroRota";
-
+import { EsqueciSenhaRota } from "../pages/RecuperarSenha/EsqueciSenhaRota";
+import { NovaSenhaRota } from "../pages/RecuperarSenha/NovaSenhaRota";
 
 export function AppRoutes() {
   const { state } = useAuth();
+
+  const isAuthenticated = !!state.user; // fonte de verdade
 
   return (
     <BrowserRouter>
@@ -17,26 +19,25 @@ export function AppRoutes() {
         {/* Rotas públicas */}
         <Route
           path="/login"
-          element={
-            state.isAuthenticated ? <Navigate to="/home" replace /> : <LoginRota />
-          }
+          element={isAuthenticated ? <Navigate to="/home" replace /> : <LoginRota />}
         />
         <Route
           path="/cadastro"
-          element={
-            state.isAuthenticated ? <Navigate to="/home" replace /> : <CadastroRota />
-          }
+          element={isAuthenticated ? <Navigate to="/home" replace /> : <CadastroRota />}
         />
 
-        {/* Rotas protegidas */}
+        {/* Rota protegida */}
         <Route
           path="/home"
           element={
             <ProtectedRoute>
-             <Home/>
+              <Home />
             </ProtectedRoute>
           }
         />
+
+      <Route path="/esqueci-senha" element={<EsqueciSenhaRota />} />
+      <Route path="/nova-senha" element={<NovaSenhaRota />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
