@@ -5,6 +5,7 @@ import { supabase } from "../services/authService";
 
 
 type State = {
+
   loading: boolean;
   user: User | null;
   session: Session | null;

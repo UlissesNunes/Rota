@@ -5,7 +5,7 @@ import { Sidebar } from "./componentsHome/Sidebar";
 import { HeaderHome } from "./componentsHome/HeaderHome";
 import { useAuth } from "../../contexts/useAuth";
 import { FooterRota } from "../../components/FooterRota";
-
+import { MainHome } from "./MainHome";
 
 export const Home = () => {
   const { state } = useAuth();
@@ -13,7 +13,11 @@ export const Home = () => {
 
   return (
     <div className="flex h-screen dark:bg-black">
-      <Sidebar open={sidebarOpen} />
+      <Sidebar
+        onboarding={null} // pode ser preenchido se quiser refletir progresso
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <div className="flex-1 flex flex-col">
         <HeaderHome onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-800 p-6">
@@ -25,6 +29,8 @@ export const Home = () => {
               Você está logado como <strong>{state.user.email}</strong>
             </p>
           )}
+          {/* Aqui delegamos a lógica */}
+          <MainHome />
           <Outlet />
         </main>
         <FooterRota />
