@@ -37,7 +37,7 @@ export const LoginForm = () => {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-200"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-800"
         >
           Email
         </label>
@@ -49,7 +49,7 @@ export const LoginForm = () => {
           value={formData.email}
           onChange={handleChange("email")}
           disabled={loading}
-          className="mt-1 block w-full rounded-md border px-3 py-2 focus:ring-2 focus:ring-[#FE751B] disabled:opacity-50"
+          className="mt-1 block w-full rounded-md border px-3 py-2  text-gray-950 focus:ring-2 focus:ring-[#FE751B] disabled:opacity-50"
           aria-invalid={!!errors.email}
           aria-describedby={errors.email ? "email-error" : undefined}
         />
@@ -77,7 +77,7 @@ export const LoginForm = () => {
     onChange={handleChange("password")}
     disabled={loading}
     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 
-               text-gray-900 dark:text-gray-600 focus:ring-2 focus:ring-[#FE751B] disabled:opacity-50"
+               text-gray-950 dark:text-gray-900 focus:ring-2 focus:ring-[#FE751B] disabled:opacity-50"
     aria-invalid={!!errors.password}
     aria-describedby={errors.password ? "password-error" : undefined}
   />

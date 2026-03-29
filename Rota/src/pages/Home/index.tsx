@@ -20,7 +20,7 @@ export const Home = () => {
       />
       <div className="flex-1 flex flex-col">
         <HeaderHome onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-800 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-200 dark:bg-gradient-to-b from-[#2a2a2a] to-black p-6">
           <h1 className="text-3xl font-bold text-[#FE751B] mb-4 text-center">
             Bem-vindo(a)
           </h1>

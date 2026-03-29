@@ -9,7 +9,7 @@ export const CadastroRota = () => {
       <main className="flex min-h-screen w-full items-center justify-center px-4">
         <section
           className="w-full max-w-md rounded-lg border border-[#FE751B]/40 
-                     bg-white/70 p-8 shadow-lg backdrop-blur 
+                     bg-white/60 p-8 shadow-lg backdrop-blur 
                      dark:bg-black/40"
           aria-labelledby="cadastro-title"
         >
