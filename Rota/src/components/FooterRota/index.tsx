@@ -1,5 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export function FooterRota() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
+  const navigate = useNavigate();
 
   return (
     <footer className="w-full border-t border-slate-200 py-8 dark:border-white/10">
@@ -15,27 +18,27 @@ export function FooterRota() {
           </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <a
-              href="/"
+            <button
+              onClick={() => navigate("/LoginRota")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Início
-            </a>
-            <a
-              href="/politica-de-privacidade"
+            </button>
+            <button
+              onClick={() => navigate("/RotaPoliticaDePrivacidade")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Política de Privacidade
-            </a>
-            <a
-              href="/termos-de-uso"
+            </button>
+            <button
+              onClick={() => navigate("/RotaTermosDeUso")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Termos de Uso
-            </a>
+            </button>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }
