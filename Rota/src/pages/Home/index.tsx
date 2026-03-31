@@ -12,27 +12,29 @@ export const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen dark:bg-black">
-      <Sidebar
-        onboarding={null} // pode ser preenchido se quiser refletir progresso
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <div className="flex-1 flex flex-col">
-        <HeaderHome onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="flex-1 overflow-y-auto bg-gray-200 dark:bg-[#080808] p-6">
-          <h1 className="text-3xl font-bold text-[#FE751B] mb-4 text-center">
-            Bem-vindo(a)
-          </h1>
-          {state.user && (
-            <p className="text-center text-gray-700 dark:text-white/80 mb-6">
-              Você está logado como <strong>{state.user.email}</strong>
-            </p>
-          )}
-          {/* Aqui delegamos a lógica */}
+    <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-[#0f0f0e]">
+
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Overlay mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <HeaderHome
+          user={state.user}
+          onToggleSidebar={() => setSidebarOpen((v) => !v)}
+        />
+
+        <main className="flex-1 overflow-y-auto">
           <MainHome />
           <Outlet />
         </main>
+
         <FooterRota />
       </div>
     </div>
