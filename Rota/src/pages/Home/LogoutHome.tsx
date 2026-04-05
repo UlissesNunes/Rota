@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../../services/authService";
+import { supabase } from "../../infra/superBaseClient";
 
 
 export function LogoutButton() {

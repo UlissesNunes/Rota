@@ -1,9 +1,5 @@
-// src/services/authService.ts
-import { createClient } from "@supabase/supabase-js";
-import { env } from "../config/env";
+import { supabase } from "../infra/superBaseClient";
 import type { User, Session } from "@supabase/supabase-js";
-
-export const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
 
 export type AuthResponse = {
   user: User | null;

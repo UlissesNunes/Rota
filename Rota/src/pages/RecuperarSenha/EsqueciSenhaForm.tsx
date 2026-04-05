@@ -1,6 +1,6 @@
 // src/pages/EsqueciSenha/EsqueciSenhaForm.tsx
 import { useState } from "react";
-import { supabase } from "../../services/authService";
+import { supabase } from "../../infra/superBaseClient";
 
 
 export const EsqueciSenhaForm = () => {

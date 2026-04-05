@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../../services/authService";
+import { supabase } from "../../infra/superBaseClient";
 
 export const NovaSenhaForm: React.FC = () => {
   const [password, setPassword] = useState("");

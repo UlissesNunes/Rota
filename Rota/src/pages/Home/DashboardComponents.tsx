@@ -4,7 +4,7 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 import type { OnboardingStep } from "../../domain/DashboardDomain";
-import type { KPIViewModel, ChartViagemViewModel, ChartMotoristaViewModel } from "../../types/DashboardViewModel";
+import type { KPIViewModel, ChartViagensViewModel, ChartMotoristaViewModel } from "../../types/DashboardViewModel";
 
 // ── Constantes visuais ──────────────────────────────────────────────────────
 
@@ -201,7 +201,7 @@ export const SetupSection = ({ steps }: { steps: OnboardingStep[] }) => {
 // ── Activity Charts ─────────────────────────────────────────────────────────
 
 type ActivityChartsProps = {
-  chartViagens:    ChartViagemViewModel[];
+  chartViagens:    ChartViagensViewModel[];
   chartMotoristas: ChartMotoristaViewModel[];
 };
 

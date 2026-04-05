@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useCallback } from "react";
 import { isValidSession } from "../domain/auth";
 import type { User, Session, AuthResponse } from "@supabase/supabase-js";
-import { supabase } from "../services/authService";
+import { supabase } from "../infra/superBaseClient";
 
 
 type State = {

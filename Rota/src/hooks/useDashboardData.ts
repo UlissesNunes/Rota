@@ -1,14 +1,18 @@
 // src/hooks/useDashboardData.ts
-// Orquestra chamadas, mapeia DTOs e entrega ViewModel pronto para a UI
-
 import { useEffect, useState, useCallback } from "react";
+
+import {
+  mapEmpresaDTO,
+  mapViagensDTO,
+  mapMotoristaDTO,
+  mapOnboardingDTO,
+  compact,
+} from "../mappers/DashboardMappers";
 import { buildDashboardData, type DashboardViewModel } from "../useCases/DashboarduUeCases";
-import { mapEmpresaDTO, mapViagemDTO, mapMotoristaDTO, mapOnboardingDTO } from "../mappers/DashboardMappers";
 import { fetchEmpresa } from "../services/DashboardEmpresaService";
 import { fetchMotoristas } from "../services/DashboardMotoristaService";
 import { fetchOnboardingSteps } from "../services/DashboardOnboardingServices";
 import { fetchViagens } from "../services/DashboardViagensService";
-
 
 type UseDashboardDataReturn = {
   data:    DashboardViewModel | null;
@@ -34,12 +38,12 @@ export const useDashboardData = (): UseDashboardDataReturn => {
         fetchOnboardingSteps(),
       ]);
 
-      const empresa    = mapEmpresaDTO(empresaDTO);
-      const viagens    = viagensDTO.map(mapViagemDTO).filter(Boolean) as NonNullable<ReturnType<typeof mapViagemDTO>>[];
-      const motoristas = motoristasDTO.map(mapMotoristaDTO).filter(Boolean) as NonNullable<ReturnType<typeof mapMotoristaDTO>>[];
-      const onboarding = onboardingDTO.map(mapOnboardingDTO).filter(Boolean) as NonNullable<ReturnType<typeof mapOnboardingDTO>>[];
-
-      setData(buildDashboardData(empresa, viagens, motoristas, onboarding));
+      setData(buildDashboardData(
+        mapEmpresaDTO(empresaDTO),
+        compact(viagensDTO.map(mapViagensDTO)),
+        compact(motoristasDTO.map(mapMotoristaDTO)),
+        compact(onboardingDTO.map(mapOnboardingDTO)),
+      ));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado");
     } finally {

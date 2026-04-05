@@ -1,18 +1,18 @@
 // src/types/viewModel.ts
-// Modelos prontos para a UI — nunca contêm lógica de negócio
+// Modelos prontos para componentes — nunca contêm lógica de negócio
 
 export type KPIViewModel = {
   label: string;
   value: number | string;
-  hint: string;
+  hint:  string;
 };
 
-export type ChartViagemViewModel = {
-  categoria: string;
-  total: number;
+export type ChartViagensViewModel = {
+  categoria: string; // label do status (ex: "Em andamento")
+  total:     number;
 };
 
 export type ChartMotoristaViewModel = {
-  name: string;
+  name:  string;
   value: number;
 };
