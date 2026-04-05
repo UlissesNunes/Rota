@@ -1,7 +1,9 @@
 // src/pages/Home/DashboardHome/DashboardComponents.tsx
+
+
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell,
+  PieChart, Pie,Cell,
 } from "recharts";
 import type { OnboardingStep } from "../../domain/DashboardDomain";
 import type { KPIViewModel, ChartViagensViewModel, ChartMotoristaViewModel } from "../../types/DashboardViewModel";
@@ -35,8 +37,8 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 export const DashboardBanner = ({ nomeEmpresa }: { nomeEmpresa: string }) => (
   <div className="relative w-full min-h-[320px] sm:min-h-[280px] overflow-hidden
                   flex items-center justify-center group">
-    <img
-      src="/erp-banner.png"
+    <img 
+      src="/public/rotaPainel.webp"
       alt="Rota"
       className="absolute inset-0 w-full h-full object-cover object-[center_35%]
                  scale-[1.03] group-hover:scale-100 transition-transform duration-[8000ms] ease-linear"
@@ -56,7 +58,7 @@ export const DashboardBanner = ({ nomeEmpresa }: { nomeEmpresa: string }) => (
 
       {/* Título simples e limpo */}
       <h1 className="text-white text-3xl sm:text-4xl font-semibold leading-snug tracking-tight">
-        Bem-vindo à <span className="text-[#FE751B] font-bold">{nomeEmpresa}</span>
+        Bem-vindo <span className="text-[#FE751B] font-bold">{nomeEmpresa}</span>
       </h1>
 
       <p className="text-white/55 text-sm leading-relaxed max-w-sm">
@@ -258,7 +260,8 @@ export const ActivityCharts = ({ chartViagens, chartMotoristas }: ActivityCharts
               animationDuration={900}
               animationEasing="ease-out"
             >
-              {chartMotoristas.map((_, i) => (
+             
+                  {chartMotoristas.map((_, i) => (
                 <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
               ))}
             </Pie>
