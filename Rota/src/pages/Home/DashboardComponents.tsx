@@ -34,7 +34,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 // ── Banner ──────────────────────────────────────────────────────────────────
 
-export const DashboardBanner = ({ nomeEmpresa }: { nomeEmpresa: string }) => (
+export const DashboardBanner = () => (
   <div className="relative w-full min-h-[320px] sm:min-h-[280px] overflow-hidden
                   flex items-center justify-center group">
     <img 
@@ -48,17 +48,11 @@ export const DashboardBanner = ({ nomeEmpresa }: { nomeEmpresa: string }) => (
 
     <div className="relative z-10 text-center px-6 py-10 max-w-lg
                     flex flex-col items-center gap-4">
-      {/* Badge */}
-      <span className="inline-flex items-center gap-2 bg-[#FE751B] text-white
-                       text-[10px] font-semibold uppercase tracking-widest
-                       px-3 py-1 rounded-full">
-        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-        Plataforma ativa
-      </span>
+  
 
       {/* Título simples e limpo */}
       <h1 className="text-white text-3xl sm:text-4xl font-semibold leading-snug tracking-tight">
-        Bem-vindo <span className="text-[#FE751B] font-bold">{nomeEmpresa}</span>
+        Bem-vindo a <span className="text-[#FE751B] font-bold">Rota</span>
       </h1>
 
       <p className="text-white/55 text-sm leading-relaxed max-w-sm">
