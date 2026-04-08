@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { themeUtils, type Tema } from "../hooks/useTheme";
+import { themeUtils, type Tema } from "../../hooks/useTheme";
 
 type ThemeToggleProps = {
   /** "button" = botão completo com texto | "icon" = só o ícone */
@@ -25,14 +25,17 @@ export const ThemeToggle = ({ variant = "button" }: ThemeToggleProps) => {
       <button
         type="button"
         onClick={toggle}
-        title={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
+        title={
+          theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"
+        }
         className="p-1.5 rounded-md text-gray-400 dark:text-[#666]
                    hover:text-[#FE751B] dark:hover:text-[#FE751B] transition-colors"
       >
-        {theme === "dark"
-          ? <Sun  className="h-4 w-4" aria-hidden="true" />
-          : <Moon className="h-4 w-4" aria-hidden="true" />
-        }
+        {theme === "dark" ? (
+          <Sun className="h-4 w-4" aria-hidden="true" />
+        ) : (
+          <Moon className="h-4 w-4" aria-hidden="true" />
+        )}
       </button>
     );
   }
@@ -48,10 +51,11 @@ export const ThemeToggle = ({ variant = "button" }: ThemeToggleProps) => {
                  transition-colors"
     >
       <span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span>
-      {theme === "dark"
-        ? <Sun  className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-        : <Moon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-      }
+      {theme === "dark" ? (
+        <Sun className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      ) : (
+        <Moon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      )}
     </button>
   );
 };
