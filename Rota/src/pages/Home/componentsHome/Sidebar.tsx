@@ -1,5 +1,6 @@
 // src/pages/Home/componentsHome/Sidebar.tsx
 import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "../../../components/ThemeToggle";
 
 type NavItem  = { label: string; to: string };
 type NavGroup = { label: string; icon: React.ReactNode; items: NavItem[] };
@@ -58,8 +59,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: "Configurações", to: "/sistema/configuracoes" },
       { label: "Notificações",  to: "/sistema/notificacoes"  },
-      { label: "Tema",          to: "/sistema/tema"          },
     ],
+    
   },
   {
     label: "Financeiro",
@@ -146,9 +147,13 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-black/[0.06] dark:border-white/[0.06]
-                      text-[11px] text-gray-300 dark:text-[#444]">
-        Rota © {new Date().getFullYear()}
+       <div className="px-3 py-3 border-t border-black/[0.06] dark:border-white/[0.06]
+                      flex flex-col gap-2">
+     
+        <ThemeToggle variant="button" />
+        <p className="text-[10px] text-gray-300 dark:text-[#444] px-1">
+          Rota © {new Date().getFullYear()}
+        </p>
       </div>
     </aside>
   );

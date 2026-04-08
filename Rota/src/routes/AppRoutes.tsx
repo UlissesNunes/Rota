@@ -41,6 +41,7 @@ export function AppRoutes() {
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+        
       </Routes>
     </BrowserRouter>
   );
