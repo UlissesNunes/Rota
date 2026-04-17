@@ -1,53 +1,62 @@
 // src/routes/route.types.ts
-// Todas as rotas do sistema tipadas — nunca use strings hardcoded fora daqui
+// Fonte única de verdade para todas as rotas do sistema
+// NUNCA use strings hardcoded fora deste arquivo
 
 export const ROUTES = {
-  // Dashboard
-  home: "/",
+  // Autenticação (públicas)
+  auth: {
+    login:         "/login",
+    cadastro:      "/cadastro",
+    esqueciSenha:  "/esqueci-senha",
+    novaSenha:     "/nova-senha",
+  },
+
+  // Home — raiz do layout autenticado
+  // FIX #1: alinhado com AppRoutes que usa "/home"
+  home: "/home",
 
   // Empresa
   empresa: {
-    dados: "/empresa/dados",
+    dados: "/home/empresa/dados",
   },
 
-  // Painel
+  // Painel / Viagens
   painel: {
-    novaViagem:  "/viagens/nova",
-    frota:       "/painel/frota",
-    relatorios:  "/painel/relatorios",
+    novaViagem: "/home/viagens/nova",
+    frota:      "/home/painel/frota",
+    relatorios: "/home/painel/relatorios",
   },
 
   // Equipe
   equipe: {
-    motoristas:   "/equipe/motoristas",
-    funcionarios: "/equipe/funcionarios",
+    motoristas:   "/home/equipe/motoristas",
+    funcionarios: "/home/equipe/funcionarios",
   },
 
   // Produtos
   produtos: {
-    servicos:   "/produtos/servicos",
-    categorias: "/produtos/categorias",
+    servicos:   "/home/produtos/servicos",
+    categorias: "/home/produtos/categorias",
   },
 
   // Sistema
   sistema: {
-    configuracoes: "/sistema/configuracoes",
-    notificacoes:  "/sistema/notificacoes",
-    tema:          "/sistema/tema",
+    configuracoes: "/home/sistema/configuracoes",
+    notificacoes:  "/home/sistema/notificacoes",
+    tema:          "/home/sistema/tema",
   },
 
   // Financeiro
   financeiro: {
-    plano:      "/financeiro/plano",
-    pagamentos: "/financeiro/pagamentos",
+    plano:      "/home/financeiro/plano",
+    pagamentos: "/home/financeiro/pagamentos",
   },
 } as const;
 
-// Tipo que extrai todas as rotas possíveis como string literal
-type ExtractRoutes<T> = T extends string
-  ? T
-  : T extends object
-  ? ExtractRoutes<T[keyof T]>
-  : never;
+// Extrai todas as rotas como string literal union
+type ExtractRoutes<T> =
+  T extends string   ? T :
+  T extends object   ? ExtractRoutes<T[keyof T]> :
+  never;
 
 export type AppRoute = ExtractRoutes<typeof ROUTES>;

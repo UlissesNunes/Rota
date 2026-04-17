@@ -42,7 +42,7 @@ export const DashboardHome = ({ user }: DashboardHomeProps) => {
         }
       `}</style>
 
-      <DashboardBanner nomeEmpresa={data.empresa.nome} />
+      <DashboardBanner />
 
       <div className="max-w-[1080px] mx-auto px-5 py-8 flex flex-col gap-8 pb-16">
         <DashboardGreeting nome={primeiroNome} email={user.email ?? ""} />

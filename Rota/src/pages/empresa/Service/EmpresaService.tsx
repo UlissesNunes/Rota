@@ -1,11 +1,12 @@
 // src/domains/empresa/services/empresa.service.ts
-// Apenas queries — sem lógica de negócio
+// FIX #2: update() NÃO recebe userId — RLS filtra por user_id = auth.uid() automaticamente
+// A política "empresas_update" no banco garante que só a própria empresa é atualizada
+
 
 import { supabase } from "../../../infra/superBaseClient";
-import type { Empresa, EmpresaUpdateInput } from "../Types/EmpresaTypes";
-
-
+import type { Empresa, EmpresaUpdatePayload } from "../Types/EmpresaTypes";
 export const empresaService = {
+  // Leitura: RLS filtra por user_id = auth.uid() — sem parâmetros necessários
   async fetch(): Promise<Empresa> {
     const { data, error } = await supabase
       .from("empresas")
@@ -15,15 +16,12 @@ export const empresaService = {
     return data as Empresa;
   },
 
-  async update(userId: string, input: EmpresaUpdateInput): Promise<void> {
+  // FIX #2: sem userId — RLS da policy "empresas_update" garante isolamento
+  // payload contém apenas os campos que foram explicitamente alterados (PATCH real)
+  async update(payload: EmpresaUpdatePayload): Promise<void> {
     const { error } = await supabase
       .from("empresas")
-      .update({
-        nome:     input.nome.trim(),
-        email:    input.email.trim()    || null,
-        whatsapp: input.whatsapp.trim() || null,
-      })
-      .eq("user_id", userId);
+      .update(payload);
     if (error) throw new Error(error.message);
   },
 };
