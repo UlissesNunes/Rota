@@ -3,6 +3,8 @@
 export type PlanoTipo = "gratuito" | "pro" | "enterprise";
 
 export type Empresa = {
+  endereco: string;
+  cnpj: string;
   id:       string;
   nome:     string;
   email:    string;
@@ -26,4 +28,7 @@ export type EmpresaUpdatePayload = {
   nome?:     string;
   email?:    string | null;
   whatsapp?: string | null;
+  cnpj?:     string;
+  endereco?: string;
+  
 };

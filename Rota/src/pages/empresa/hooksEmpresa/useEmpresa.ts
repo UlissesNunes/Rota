@@ -21,7 +21,7 @@ export const useEmpresaForm = () => {
     setSucesso(false);
 
     // FIX #4: apenas input — sem userId, sem empresaId
-    const result = await updateEmpresaUseCase(input);
+    const result = await updateEmpresaUseCase(empresa, input);
 
     if (result.error) {
       setErro(result.error);

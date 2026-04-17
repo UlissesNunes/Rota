@@ -3,20 +3,17 @@
 // FIX #4: normalized começa VAZIO — campos só são adicionados se presentes no input
 // Isso garante PATCH real: campos ausentes no input não sobrescrevem dados existentes
 
+import type { EmpresaEstado } from "../../../contexts/EmpresaContext";
 import type { UseCaseVoidResult } from "../../../types/useCasesIsReturnFromSistem";
 import { empresaService } from "../Service/EmpresaService";
 import type { EmpresaUpdateInput, EmpresaUpdatePayload } from "../Types/EmpresaTypes";
 
-
-
 export async function updateEmpresaUseCase(
-  input: EmpresaUpdateInput,           // FIX #3: sem userId, sem empresaId
+  empresa: EmpresaEstado | null,
+  input: EmpresaUpdateInput
 ): Promise<UseCaseVoidResult> {
-
-  // FIX #4: normalized começa vazio — só recebe campos que existem no input
   const normalized: EmpresaUpdatePayload = {};
 
-  // ── nome ─────────────────────────────────────────────────────────────────
   if (input.nome !== undefined) {
     const nome = input.nome.trim();
     if (nome.length < 2) {
@@ -25,11 +22,10 @@ export async function updateEmpresaUseCase(
     normalized.nome = nome;
   }
 
-  // ── email ─────────────────────────────────────────────────────────────────
   if (input.email !== undefined) {
     const email = (input.email ?? "").trim();
     if (email === "") {
-      normalized.email = null;                        // limpa o email
+      normalized.email = null;
     } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return { error: "E-mail inválido." };
     } else {
@@ -37,33 +33,35 @@ export async function updateEmpresaUseCase(
     }
   }
 
-  // ── whatsapp ──────────────────────────────────────────────────────────────
   if (input.whatsapp !== undefined) {
-    const raw    = (input.whatsapp ?? "").trim();
+    const raw = (input.whatsapp ?? "").trim();
     const digits = raw.replace(/\D/g, "");
     if (raw === "") {
-      normalized.whatsapp = null;                     // limpa o whatsapp
+      normalized.whatsapp = null;
     } else if (digits.length < 10 || digits.length > 15) {
       return { error: "WhatsApp inválido. Digite entre 10 e 15 dígitos." };
     } else {
-      normalized.whatsapp = digits;                   // persiste só dígitos
+      normalized.whatsapp = digits;
     }
   }
 
-  // FIX #4: agora esta validação funciona de verdade
+  if (input.cnpj !== undefined) normalized.cnpj = input.cnpj;
+  if (input.endereco !== undefined) normalized.endereco = input.endereco;
+
   if (Object.keys(normalized).length === 0) {
     return { error: "Nenhum campo foi alterado." };
   }
 
   try {
-    await empresaService.update(normalized);
-    await syncOnboardingUseCase();                    // FIX #3: sem empresaId
+    if (!empresa?.id) {
+      // não existe empresa → cria
+      await empresaService.create(normalized);
+    } else {
+      // existe empresa → atualiza
+      await empresaService.update(empresa.id, normalized);
+    }
     return { error: null };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Erro ao atualizar empresa." };
+    return { error: err instanceof Error ? err.message : "Erro ao salvar empresa." };
   }
-}
-
-function syncOnboardingUseCase() {
-  throw new Error("Function not implemented.");
 }

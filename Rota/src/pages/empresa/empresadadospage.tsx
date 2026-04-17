@@ -157,6 +157,8 @@ function buildPayload(empresa: Empresa, form: EmpresaUpdateInput): EmpresaUpdate
   const whatsapp = normalizeWhatsapp(form.whatsapp ?? "");
   if (whatsapp !== undefined && whatsapp !== empresa.whatsapp) payload.whatsapp = whatsapp;
   else if (whatsapp === null && empresa.whatsapp !== null) payload.whatsapp = null;
+ if (form.cnpj !== empresa.cnpj) payload.cnpj = form.cnpj;
+  if (form.endereco !== empresa.endereco) payload.endereco = form.endereco;
 
   return payload;
 }

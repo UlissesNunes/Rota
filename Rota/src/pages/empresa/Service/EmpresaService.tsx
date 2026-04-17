@@ -7,21 +7,32 @@ import { supabase } from "../../../infra/superBaseClient";
 import type { Empresa, EmpresaUpdatePayload } from "../Types/EmpresaTypes";
 export const empresaService = {
   // Leitura: RLS filtra por user_id = auth.uid() — sem parâmetros necessários
-  async fetch(): Promise<Empresa> {
+// src/domains/empresa/services/empresa.service.ts
+
+  async fetch(): Promise<Empresa | null> {
     const { data, error } = await supabase
       .from("empresas")
-      .select("id, nome, email, whatsapp, plano")
+      .select("id, nome, email, whatsapp, plano, cnpj, endereco")
+      .maybeSingle(); // retorna null se não existir
+    if (error) throw new Error(error.message);
+    return data as Empresa | null;
+  },
+
+  async create(payload: EmpresaUpdatePayload): Promise<Empresa> {
+    const { data, error } = await supabase
+      .from("empresas")
+      .insert(payload)
+      .select()
       .single();
     if (error) throw new Error(error.message);
     return data as Empresa;
   },
 
-  // FIX #2: sem userId — RLS da policy "empresas_update" garante isolamento
-  // payload contém apenas os campos que foram explicitamente alterados (PATCH real)
-  async update(payload: EmpresaUpdatePayload): Promise<void> {
+  async update(id: string, payload: EmpresaUpdatePayload): Promise<void> {
     const { error } = await supabase
       .from("empresas")
-      .update(payload);
+      .update(payload)
+      .eq("id", id);
     if (error) throw new Error(error.message);
   },
 };
