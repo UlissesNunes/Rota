@@ -7,6 +7,8 @@ import { Home } from "../pages/Home";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { EsqueciSenhaRota } from "../pages/RecuperarSenha/EsqueciSenhaRota";
 import { NovaSenhaRota } from "../pages/RecuperarSenha/NovaSenhaRota";
+import { EmpresaDadosPage } from "../pages/empresa/empresadadospage";
+import { EmpresaProvider } from "../contexts/EmpresaProvider";
 
 export function AppRoutes() {
   const { state } = useAuth();
@@ -15,6 +17,7 @@ export function AppRoutes() {
 
   return (
     <BrowserRouter>
+    <EmpresaProvider>
       <Routes>
         {/* Rotas públicas */}
         <Route
@@ -41,8 +44,21 @@ export function AppRoutes() {
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-        
+          
+     
+       <Route
+  path="/empresa/dados"
+  element={
+    
+      <EmpresaDadosPage />
+    
+  }
+/>
+      
+  
+
       </Routes>
+      </EmpresaProvider>
     </BrowserRouter>
   );
 }

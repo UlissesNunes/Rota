@@ -9,6 +9,8 @@ import { createContext } from "react";
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 export type EmpresaEstado = {
+  cnpj: string;
+  endereco: string;
   id:             string;
   nome:           string;
   email:          string;

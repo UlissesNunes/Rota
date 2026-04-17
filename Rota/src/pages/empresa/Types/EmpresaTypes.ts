@@ -13,6 +13,8 @@ export type Empresa = {
 // FIX #1: todos os campos opcionais — permite PATCH real
 // Nenhum campo obrigatório — o useCase normaliza e valida o que foi enviado
 export type EmpresaUpdateInput = {
+  cnpj: string;
+  endereco: string;
   nome?:     string;
   email?:    string | null;
   whatsapp?: string | null;

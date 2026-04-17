@@ -15,18 +15,20 @@ export const EmpresaProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
 
       // Busca empresa + contagens em paralelo — zero chamadas duplicadas
-      const [
-        { data: emp, error: empErr },
-        { count: cMotoristas },
-        { count: cProdutos },
-        { count: cViagens },
-      ] = await Promise.all([
-        supabase.from("empresas").select("id, nome, email, whatsapp, plano").single(),
-        supabase.from("motoristas").select("id", { count: "exact", head: true }).is("deleted_at", null),
-        supabase.from("produtos").select("id", { count: "exact", head: true }).is("deleted_at", null),
-        supabase.from("viagens").select("id", { count: "exact", head: true }).is("deleted_at", null),
-      ]);
-
+   const [
+  { data: emp, error: empErr },
+  { count: cMotoristas },
+  { count: cProdutos },
+  { count: cViagens },
+] = await Promise.all([
+  supabase
+    .from("empresas")
+    .select("id, nome, email, whatsapp, plano, cnpj, endereco") // inclua os campos
+    .single(),
+  supabase.from("motoristas").select("id", { count: "exact", head: true }).is("deleted_at", null),
+  supabase.from("produtos").select("id", { count: "exact", head: true }).is("deleted_at", null),
+  supabase.from("viagens").select("id", { count: "exact", head: true }).is("deleted_at", null),
+]);
       if (empErr) throw new Error(empErr.message);
       if (!emp)   throw new Error("Empresa não encontrada");
 
@@ -36,6 +38,8 @@ export const EmpresaProvider = ({ children }: { children: ReactNode }) => {
         nome:          emp.nome     ?? "Nova Empresa",
         email:         emp.email    ?? "",
         whatsapp:      emp.whatsapp ?? "",
+        cnpj:          emp.cnpj     ?? "",        
+        endereco:      emp.endereco ?? "",
         plano:         emp.plano    ?? "gratuito",
         temMotoristas: (cMotoristas ?? 0) > 0,
         temProdutos:   (cProdutos   ?? 0) > 0,
