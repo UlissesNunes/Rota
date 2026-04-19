@@ -19,19 +19,19 @@ export function FooterRota() {
 
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <button
-              onClick={() => navigate("/LoginRota")}
+              onClick={() => navigate("/")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Início
             </button>
             <button
-              onClick={() => navigate("/RotaPoliticaDePrivacidade")}
+              onClick={() => navigate("/RotaPrivacidade")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Política de Privacidade
             </button>
             <button
-              onClick={() => navigate("/RotaTermosDeUso")}
+              onClick={() => navigate("/RotaTermos")}
               className="text-xs font-medium text-slate-600 hover:text-black dark:text-white/70 dark:hover:text-white"
             >
               Termos de Uso

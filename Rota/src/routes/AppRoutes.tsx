@@ -11,6 +11,8 @@ import { EmpresaDadosPage } from "../pages/empresa/empresadadospage";
 import { EmpresaProvider } from "../contexts/EmpresaProvider";
 import { MotoristaDadosPage } from "../pages/motorista/MotoristaDadosPage";
 import { MotoristaProvider } from "../contexts/MotoristaProvider";
+import RotaTermosDeUso from "../pages/RotaTermosDeUso/RotaTermosDeUso";
+import RotaPoliticaDePrivacidade from "../pages/RotaPoliticaDePrivacidade/RotaPoliticaDePrivacidade";
 
 export function AppRoutes() {
   const { state } = useAuth();
@@ -43,6 +45,9 @@ export function AppRoutes() {
 
       <Route path="/esqueci-senha" element={<EsqueciSenhaRota />} />
       <Route path="/nova-senha" element={<NovaSenhaRota />} />
+      
+      <Route path="/rotaTermos" element={<RotaTermosDeUso />} />
+      <Route path="/rotaPrivacidade" element={<RotaPoliticaDePrivacidade />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
