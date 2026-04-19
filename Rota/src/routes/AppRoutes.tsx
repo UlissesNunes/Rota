@@ -9,6 +9,8 @@ import { EsqueciSenhaRota } from "../pages/RecuperarSenha/EsqueciSenhaRota";
 import { NovaSenhaRota } from "../pages/RecuperarSenha/NovaSenhaRota";
 import { EmpresaDadosPage } from "../pages/empresa/empresadadospage";
 import { EmpresaProvider } from "../contexts/EmpresaProvider";
+import { MotoristaDadosPage } from "../pages/motorista/MotoristaDadosPage";
+import { MotoristaProvider } from "../contexts/MotoristaProvider";
 
 export function AppRoutes() {
   const { state } = useAuth();
@@ -17,7 +19,7 @@ export function AppRoutes() {
 
   return (
     <BrowserRouter>
-    <EmpresaProvider>
+   
       <Routes>
         {/* Rotas públicas */}
         <Route
@@ -49,16 +51,25 @@ export function AppRoutes() {
        <Route
   path="/empresa/dados"
   element={
-    
+     <EmpresaProvider>
       <EmpresaDadosPage />
-    
+     </EmpresaProvider>
   }
 />
+      <Route
+  path="/motorista/Inicial"
+  element={
+    <MotoristaProvider>
+      <MotoristaDadosPage />
+    </MotoristaProvider>
+  }
+/>
+      
       
   
 
       </Routes>
-      </EmpresaProvider>
+     
     </BrowserRouter>
   );
 }

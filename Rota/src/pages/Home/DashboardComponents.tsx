@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import type { OnboardingStep } from "../../domain/DashboardDomain";
 import type { KPIViewModel, ChartViagensViewModel, ChartMotoristaViewModel } from "../../types/DashboardViewModel";
+import { Link } from "react-router-dom";
 
 // ── Constantes visuais ──────────────────────────────────────────────────────
 
@@ -75,8 +76,8 @@ export const DashboardGreeting = ({ nome, email }: GreetingProps) => (
       </h2>
       <p className="text-[13px] text-gray-400 dark:text-neutral-500 mt-0.5">{email}</p>
     </div>
-    <a
-      href="/configuracoes/empresa"
+    <Link
+      to="/empresa"
       className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold
                  text-[#FE751B] bg-[#FE751B]/10 border border-[#FE751B]/20
                  hover:bg-[#FE751B]/20 transition-colors"
@@ -87,7 +88,7 @@ export const DashboardGreeting = ({ nome, email }: GreetingProps) => (
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
       </svg>
       Configure o sistema
-    </a>
+    </Link>
   </div>
 );
 

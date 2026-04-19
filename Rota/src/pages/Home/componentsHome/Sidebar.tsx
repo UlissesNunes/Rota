@@ -55,7 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
       </svg>
     ),
     items: [
-      { label: "Motoristas", to: "/equipe/motoristas" },
+      { label: "Motoristas", to: "/motorista/Inicial" },
       { label: "Funcionários", to: "/equipe/funcionarios" },
     ],
   },
