@@ -4,7 +4,7 @@ import { MotoristaContext } from "../../../contexts/MotoristaContext";
 
 
 import type { Motorista, MotoristaUpdateInput } from "../Types/motoristaTypes";
-import { updateMotoristaUseCase } from "../Service/motoristaUpdate";
+import { updateMotoristaUseCase } from "../useCase/updateMotoristaUseCase";
 import { deleteMotoristaUseCase } from "../Service/motoristaDelete";
 
 export const useMotoristaForm = () => {

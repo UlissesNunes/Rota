@@ -34,10 +34,10 @@ export const MotoristaDadosPage = () => {
       cnh: m.cnh,
       telefone: m.telefone,
       ativo: m.ativo,
-      modelo_caminhao: m.modeloCaminhao,
-      ano_caminhao: m.anoCaminhao,
-      cor_caminhao: m.corCaminhao,
-      placa_caminhao: m.placaCaminhao,
+      modelo_caminhao: m.modelo_caminhao,
+      ano_caminhao: m.ano_caminhao,
+      cor_caminhao: m.cor_caminhao,
+      placa_caminhao: m.placa_caminhao,
       id: m.id,
     });
     setFormVisible(true);
@@ -72,18 +72,18 @@ export const MotoristaDadosPage = () => {
                   const motoFormatado: Motorista = {
                     id: m.id,
                     nome: m.nome,
-                    cpf: m.cpf || 0,
-                    cnh: m.cnh || 0,
-                    telefone: m.telefone || 0,
+                    cpf: m.cpf ,
+                    cnh: m.cnh || "",
+                    telefone: m.telefone || "",
                     ativo: m.ativo || true,
-                    modeloCaminhao: m.modeloCaminhao || "",
-                    anoCaminhao: m.anoCaminhao || new Date().getFullYear(),
-                    corCaminhao: m.corCaminhao || "",
-                    placaCaminhao: m.placaCaminhao || "",
+                    modelo_caminhao: m.modelo_caminhao || "",
+                    ano_caminhao: m.ano_caminhao || 0,
+                    cor_caminhao: m.cor_caminhao || "",
+                    placa_caminhao: m.placa_caminhao || "",
                   };
                   return (
                     <li key={m.id} className="py-2 flex justify-between items-center">
-                      <span>{m.nome} — {m.telefone} — {m.placaCaminhao}</span>
+                      <span>{m.nome} — {m.telefone} — {m.placa_caminhao}</span>
                       <div className="flex gap-2">
                         <button onClick={() => handleEditar(motoFormatado)} className="text-blue-600">Editar</button>
                         <button onClick={() => handleExcluir(m.id)} className="text-red-600">Excluir</button>
@@ -107,28 +107,48 @@ export const MotoristaDadosPage = () => {
               <input type="text" placeholder="exe.: João Garcia Lima" minLength={10} maxLength={40}  value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputCls} />
             </Field>
             <Field label="CPF *">
-              <input type="text" placeholder="exe.: 123.456.789-00" max={14} value={form.cpf ?? 0} onChange={(e) => setForm({ ...form, cpf: Number(e.target.value) })} className={inputCls} />
-            </Field>
-            <Field label="CNH *">
-              <input type="number" placeholder="exe.: 12345678900" max={11} value={form.cnh ?? 0} onChange={(e) => setForm({ ...form, cnh: Number(e.target.value) })} className={inputCls} />
-            </Field>
+             <input
+               type="text"
+              placeholder="123.456.789-00"
+              value={form.cpf ?? ""}
+              onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+              className={inputCls}
+             />
+             </Field>
+
+             <Field label="CNH *">
+              <input
+              type="text"
+              placeholder="12345678900"
+              value={form.cnh ?? ""}
+              onChange={(e) => setForm({ ...form, cnh: e.target.value })}
+              className={inputCls}
+              />
+             </Field>
+
             <Field label="Telefone *">
-              <input type="tel" placeholder="exe.: (11) 91234-5678" max={11} value={form.telefone ?? 0} onChange={(e) => setForm({ ...form, telefone: Number(e.target.value) })} className={inputCls} />
+             <input
+               type="text"
+               placeholder="(11) 91234-5678"
+               value={form.telefone ?? ""}
+               onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                className={inputCls}
+                />
             </Field>
             <Field label="Ativo">
               <input type="checkbox" checked={form.ativo ?? true} onChange={(e) => setForm({ ...form, ativo: e.target.checked })} />
             </Field>
             <Field label="Modelo do caminhão *">
-              <input type="text" placeholder="exe.: Ford Transit" minLength={10} maxLength={60} value={form.modeloCaminhao ?? ""} onChange={(e) => setForm({ ...form, modeloCaminhao: e.target.value })} className={inputCls} />
+              <input type="text" placeholder="exe.: Ford Transit" minLength={10} maxLength={60} value={form.modelo_caminhao ?? ""} onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })} className={inputCls} />
             </Field>
             <Field label="Ano do caminhão *">
-              <input type="number" placeholder="exe.: 2020" min={1950} max={new Date().getFullYear() + 1} value={form.anoCaminhao ?? 0} onChange={(e) => setForm({ ...form, anoCaminhao: Number(e.target.value) })} className={inputCls} />
+              <input type="number" placeholder="exe.: 2020" minLength={4} maxLength={4} value={form.ano_caminhao ?? 0} onChange={(e) => setForm({ ...form, ano_caminhao: parseInt(e.target.value) || 0 })} className={inputCls} />
             </Field>
             <Field label="Cor do caminhão *">
-              <input type="text" placeholder="exe.: Vermelho" minLength={3} maxLength={20} value={form.corCaminhao ?? ""} onChange={(e) => setForm({ ...form, corCaminhao: e.target.value })} className={inputCls} />
+              <input type="text" placeholder="exe.: Vermelho" minLength={3} maxLength={20} value={form.cor_caminhao ?? ""} onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })} className={inputCls} />
             </Field>
             <Field label="Placa do caminhão *">
-              <input type="text" placeholder="exe.: ABC-1234" minLength={7} maxLength={8} value={form.placaCaminhao ?? ""} onChange={(e) => setForm({ ...form, placaCaminhao: e.target.value })} className={inputCls} />
+              <input type="text" placeholder="exe.: ABC-1234" minLength={7} maxLength={8} value={form.placa_caminhao ?? ""} onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })} className={inputCls} />
             </Field>
 
             {erro && <Feedback tipo="erro" msg={erro} />}
@@ -160,14 +180,14 @@ export const MotoristaDadosPage = () => {
 const initialFormState: MotoristaUpdateInput = {
   id: "",
   nome: "",
-  cpf: 0,
-  cnh: 0,
-  telefone: 0,
+  cpf: "",
+  cnh: "",
+  telefone: "",
   ativo: true,
-  modeloCaminhao: "",
-  anoCaminhao: new Date().getFullYear(),
-  corCaminhao: "",
-  placaCaminhao: "",
+  modelo_caminhao: "",
+  ano_caminhao: 0,
+  cor_caminhao: "",
+  placa_caminhao: "",
 };
 
 // Helpers

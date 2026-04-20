@@ -1,38 +1,17 @@
 export type Motorista = {
- placaCaminhao: string ;
-  corCaminhao: string;
-  anoCaminhao: number;
-  cpf: number;
-  modeloCaminhao: string;
+ placa_caminhao: string ;
+  cor_caminhao: string;
+  ano_caminhao: number;
+  cpf: string;
+  modelo_caminhao: string;
   nome?: string;
-  cnh?: number;
-  telefone?: number;
+  cnh?: string;
+  telefone?: string;
   ativo?: boolean;
   id : string;
 };
 
-export type MotoristaUpdateInput = {
-  placaCaminhao: string ;
-  corCaminhao: string;
-  anoCaminhao: number;
-  cpf: number;
-  modeloCaminhao: string;
-  nome?: string;
-  cnh?: number;
-  telefone?: number;
-  ativo?: boolean;
-  id : string;
-};
 
-export type MotoristaUpdatePayload = {
-   placaCaminhao: string;
-  corCaminhao: string;
-  anoCaminhao: number;
-  cpf: number;
-  modeloCaminhao: string;
-  nome?: string;
-  cnh?: number;
-  telefone?: number;
-  ativo?: boolean;
-  id : string;
-};
+export type MotoristaUpdateInput = Omit<Motorista, "id"> & { id?: string };
+export type MotoristaUpdatePayload = Omit<Motorista, "id">;
+

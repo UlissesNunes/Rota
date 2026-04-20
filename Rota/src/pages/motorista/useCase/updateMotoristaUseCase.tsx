@@ -6,12 +6,17 @@ export async function updateMotoristaUseCase(
   motorista: Motorista | null,
   input: MotoristaUpdateInput
 ): Promise<UseCaseVoidResult> {
-  const normalized: MotoristaUpdatePayload = {};
+  const normalized: Partial<MotoristaUpdatePayload> = {};
 
-  if (input.nome !== undefined) normalized.nome = input.nome.trim();
-  if (input.cnh !== undefined) normalized.cnh = input.cnh.trim();
-  if (input.telefone !== undefined) normalized.telefone = input.telefone.trim();
+  if (input.nome) normalized.nome = input.nome.trim();
+  if (input.cpf) normalized.cpf = input.cpf.trim();
+  if (input.cnh) normalized.cnh = input.cnh.trim();
+  if (input.telefone) normalized.telefone = input.telefone.trim();
   if (input.ativo !== undefined) normalized.ativo = input.ativo;
+  if (input.modelo_caminhao) normalized.modelo_caminhao = input.modelo_caminhao.trim();
+  if (input.ano_caminhao) normalized.ano_caminhao = Number(input.ano_caminhao);
+  if (input.cor_caminhao) normalized.cor_caminhao = input.cor_caminhao.trim();
+  if (input.placa_caminhao) normalized.placa_caminhao = input.placa_caminhao.trim();
 
   if (Object.keys(normalized).length === 0) {
     return { error: "Nenhum campo foi alterado." };
@@ -19,9 +24,9 @@ export async function updateMotoristaUseCase(
 
   try {
     if (!motorista?.id) {
-      await motoristaService.create(normalized);
+      await motoristaService.create(normalized as MotoristaUpdatePayload);
     } else {
-      await motoristaService.update(motorista.id, normalized);
+      await motoristaService.update(motorista.id, normalized as MotoristaUpdatePayload);
     }
     return { error: null };
   } catch (err) {

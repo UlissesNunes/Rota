@@ -1,5 +1,6 @@
+// src/domains/motorista/services/motorista.service.ts
 import { supabase } from "../../../infra/superBaseClient";
-import type { Motorista, MotoristaUpdatePayload } from "../Types/motoristaTypes";
+import type { Motorista, MotoristaUpdateInput } from "../Types/motoristaTypes";
 
 export const motoristaService = {
   async fetch(): Promise<Motorista[]> {
@@ -8,14 +9,43 @@ export const motoristaService = {
     return data as Motorista[];
   },
 
-  async create(payload: MotoristaUpdatePayload): Promise<Motorista> {
-    const { data, error } = await supabase.from("motoristas").insert(payload).select().single();
+  async create(payload: MotoristaUpdateInput): Promise<Motorista> {
+    const { data, error } = await supabase
+      .from("motoristas")
+      .insert({
+        nome: payload.nome,
+        cpf: String(payload.cpf),          // garantir string
+        cnh: String(payload.cnh),          // garantir string
+        telefone: String(payload.telefone),// garantir string
+        ativo: payload.ativo,
+        modelo_caminhao: payload.modelo_caminhao,
+        ano_caminhao: payload.ano_caminhao,
+        cor_caminhao: payload.cor_caminhao,
+        placa_caminhao: payload.placa_caminhao,
+      })
+      .select()
+      .single();
+
     if (error) throw new Error(error.message);
     return data as Motorista;
   },
 
-  async update(id: string, payload: MotoristaUpdatePayload): Promise<void> {
-    const { error } = await supabase.from("motoristas").update(payload).eq("id", id);
+  async update(id: string, payload: MotoristaUpdateInput): Promise<void> {
+    const { error } = await supabase
+      .from("motoristas")
+      .update({
+        nome: payload.nome,
+        cpf: String(payload.cpf),
+        cnh: String(payload.cnh),
+        telefone: String(payload.telefone),
+        ativo: payload.ativo,
+        modelo_caminhao: payload.modelo_caminhao,
+        ano_caminhao: payload.ano_caminhao,
+        cor_caminhao: payload.cor_caminhao,
+        placa_caminhao: payload.placa_caminhao,
+      })
+      .eq("id", id);
+
     if (error) throw new Error(error.message);
   },
 
