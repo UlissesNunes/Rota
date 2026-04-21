@@ -7,10 +7,10 @@ export type Motorista = {
   ano_caminhao: number;
   cpf: string;
   modelo_caminhao: string;
-  nome?: string;
-  cnh?: string;
-  telefone?: string;
-  ativo?: boolean;
+  nome: string;
+  cnh: string;
+  telefone: string;
+  ativo: boolean;
   id: string;
 };
 

@@ -38,7 +38,7 @@ export const MotoristaDadosPage = () => {
       ano_caminhao: m.ano_caminhao,
       cor_caminhao: m.cor_caminhao,
       placa_caminhao: m.placa_caminhao,
-      id: m.id,
+     
     });
     setFormVisible(true);
   };
@@ -104,7 +104,8 @@ export const MotoristaDadosPage = () => {
             </h2>
 
             <Field label="Nome completo *">
-              <input type="text" placeholder="exe.: João Garcia Lima" minLength={10} maxLength={40}  value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputCls} />
+              <input type="text" placeholder="exe.: João Garcia Lima" 
+              minLength={10} maxLength={30}  value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputCls} />
             </Field>
             <Field label="CPF *">
              <input
@@ -118,6 +119,7 @@ export const MotoristaDadosPage = () => {
 
              <Field label="CNH *">
               <input
+              maxLength={11}
               type="text"
               placeholder="12345678900"
               value={form.cnh ?? ""}
@@ -128,6 +130,7 @@ export const MotoristaDadosPage = () => {
 
             <Field label="Telefone *">
              <input
+             maxLength={11}
                type="text"
                placeholder="(11) 91234-5678"
                value={form.telefone ?? ""}
@@ -142,13 +145,29 @@ export const MotoristaDadosPage = () => {
               <input type="text" placeholder="exe.: Ford Transit" minLength={10} maxLength={60} value={form.modelo_caminhao ?? ""} onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })} className={inputCls} />
             </Field>
             <Field label="Ano do caminhão *">
-              <input type="number" placeholder="exe.: 2020" minLength={4} maxLength={4} value={form.ano_caminhao ?? 0} onChange={(e) => setForm({ ...form, ano_caminhao: parseInt(e.target.value) || 0 })} className={inputCls} />
+
+              <input type="number" 
+              placeholder="exe.: 2020" 
+              minLength={4} maxLength={4} 
+              value={form.ano_caminhao ?? 0} 
+              onChange={(e) => setForm({ ...form, ano_caminhao: parseInt(e.target.value) || 0 })}
+               className={inputCls} />
             </Field>
             <Field label="Cor do caminhão *">
-              <input type="text" placeholder="exe.: Vermelho" minLength={3} maxLength={20} value={form.cor_caminhao ?? ""} onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })} className={inputCls} />
+              <input type="text"
+               placeholder="exe.: Vermelho"
+                minLength={3} maxLength={10} 
+                value={form.cor_caminhao ?? ""} 
+                onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })}
+                 className={inputCls} />
             </Field>
             <Field label="Placa do caminhão *">
-              <input type="text" placeholder="exe.: ABC-1234" minLength={7} maxLength={8} value={form.placa_caminhao ?? ""} onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })} className={inputCls} />
+              <input type="text" 
+              placeholder="exe.: ABC-1234"
+               minLength={7} maxLength={8} 
+               value={form.placa_caminhao ?? ""} 
+               onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })}
+                className={inputCls} />
             </Field>
 
             {erro && <Feedback tipo="erro" msg={erro} />}
@@ -178,7 +197,7 @@ export const MotoristaDadosPage = () => {
 
 // Estado inicial do formulário
 const initialFormState: MotoristaUpdateInput = {
-  id: "",
+  
   nome: "",
   cpf: "",
   cnh: "",
