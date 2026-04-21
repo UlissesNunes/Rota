@@ -22,9 +22,9 @@ export async function updateMotoristaUseCase(
 
   try {
     if (!motorista?.id) {
-      await motoristaService.create(normalized);
+      await motoristaService.create(normalized, input.empresa_id);
     } else {
-      await motoristaService.update(motorista.id, normalized);
+      await motoristaService.update(motorista.id, normalized, input.empresa_id);
     }
     return { error: null };
   } catch (err) {

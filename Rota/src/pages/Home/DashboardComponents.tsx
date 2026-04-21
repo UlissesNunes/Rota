@@ -39,7 +39,7 @@ export const DashboardBanner = () => (
   <div className="relative w-full min-h-[320px] sm:min-h-[280px] overflow-hidden
                   flex items-center justify-center group">
     <img 
-      src="/public/rotaPainel.webp"
+      src="/rotaPainel.webp"
       alt="Rota"
       className="absolute inset-0 w-full h-full object-cover object-[center_35%]
                  scale-[1.03] group-hover:scale-100 transition-transform duration-[8000ms] ease-linear"
