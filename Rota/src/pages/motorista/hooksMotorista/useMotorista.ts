@@ -1,16 +1,12 @@
-// src/domains/motorista/hooks/useMotoristaForm.ts
-import { useState, useContext } from "react";
-import { MotoristaContext } from "../../../contexts/MotoristaContext";
-
+import { useState } from "react";
 
 import type { Motorista, MotoristaUpdateInput } from "../Types/motoristaTypes";
 import { updateMotoristaUseCase } from "../useCase/updateMotoristaUseCase";
 import { deleteMotoristaUseCase } from "../Service/motoristaDelete";
+import { useMotoristaCtx } from "../../../contexts/useMotoristaCtx";
 
 export const useMotoristaForm = () => {
-  const context = useContext(MotoristaContext);
-  if (!context) throw new Error("useMotoristaForm deve ser usado dentro de um MotoristaProvider.");
-  const { motoristas, refetch } = context;
+  const { motoristas, refetch } = useMotoristaCtx();
 
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);

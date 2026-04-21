@@ -2,6 +2,7 @@
 import { createContext } from "react";
 
 export type Motorista = {
+  empresa_id: string;
   placa_caminhao: string ;
   cor_caminhao: string;
   ano_caminhao: number;
