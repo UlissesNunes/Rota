@@ -6,7 +6,7 @@ import { supabase } from "../infra/superBaseClient";
 
 
 /** Lista todos os motoristas não deletados da empresa. */
-export async function fetchMotoristas(): Promise<MotoristaDTO[]> {
+export async function fetchMotoristas(id: string): Promise<MotoristaDTO[]> {
   const { data, error } = await supabase
     .from("motoristas")
     .select("id, nome, telefone, status, deleted_at")

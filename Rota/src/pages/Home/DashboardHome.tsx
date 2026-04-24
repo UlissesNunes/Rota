@@ -1,6 +1,4 @@
 // src/pages/Home/DashboardHome/DashboardHome.tsx
-// Orquestrador puro — sem lógica de negócio, sem lógica de dados
-
 import { useDashboardData } from "../../hooks/useDashboardData";
 import {
   DashboardBanner,
@@ -29,12 +27,10 @@ export const DashboardHome = ({ user }: DashboardHomeProps) => {
   if (!data)   return null;
 
   return (
-    <div
-      className="min-h-screen w-full bg-gray-100 dark:bg-[#0f0f0e]
-                 text-gray-900 dark:text-neutral-100
-                 animate-[dash-in_0.4s_ease_both]"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-    >
+    <div className="min-h-screen w-full bg-gray-100 dark:bg-[#0f0f0e]
+                    text-gray-900 dark:text-neutral-100
+                    animate-[dash-in_0.4s_ease_both]"
+         style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`
         @keyframes dash-in {
           from { opacity: 0; transform: translateY(12px); }
@@ -48,10 +44,7 @@ export const DashboardHome = ({ user }: DashboardHomeProps) => {
         <DashboardGreeting nome={primeiroNome} email={user.email ?? ""} />
         <KPIGrid          kpis={data.kpis} />
         <SetupSection     steps={data.onboarding} />
-        <ActivityCharts
-          chartViagens={data.chartViagens}
-          chartMotoristas={data.chartMotoristas}
-        />
+        <ActivityCharts   chartViagens={data.chartViagens} chartMotoristas={data.chartMotoristas} />
         <FeaturesSection />
       </div>
     </div>

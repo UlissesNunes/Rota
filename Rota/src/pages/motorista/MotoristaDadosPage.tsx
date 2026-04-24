@@ -2,25 +2,61 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell } from "../../components/PageShell/PageShell";
-import { useMotoristaForm } from "./hooksMotorista/useMotorista";
+import { useMotoristaCtx } from "../../contexts/useMotoristaCtx";
+import { motoristaService } from "./Service/motoristaService";
 import type { MotoristaUpdatePayload } from "./Types/motoristaTypes";
+import { useEmpresa } from "../../contexts/useEmpresa";
 
 
 export const MotoristaDadosPage = () => {
-  const { motoristas, salvando, erro, sucesso, salvar, excluir } = useMotoristaForm();
+  const { motoristas, loading, error, refetch } = useMotoristaCtx();
   const navigate = useNavigate();
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [form, setForm] = useState<MotoristaUpdatePayload | null>(null);
-
+    const { empresa } = useEmpresa(); 
   const startEdit = (index: number) => {
     setEditIndex(index);
-    setForm({ ...motoristas[index] });
+    const m = motoristas[index];
+    setForm({
+      empresa_id: m.empresa_id,
+      nome: m.nome,
+      cpf: m.cpf,
+      cnh: m.cnh,
+      telefone: m.telefone,
+      ativo: m.ativo,
+      modelo_caminhao: m.modelo_caminhao,
+      ano_caminhao: m.ano_caminhao,
+      cor_caminhao: m.cor_caminhao,
+      placa_caminhao: m.placa_caminhao,
+    });
+  };
+
+ const startCreate = () => {
+    if (!empresa) return; // segurança
+    setEditIndex(-1);
+    setForm({
+      empresa_id: empresa.id, // 🔑 sempre usar empresa.id
+      nome: "",
+      cpf: "",
+      cnh: "",
+      telefone: "",
+      ativo: true,
+      modelo_caminhao: "",
+      ano_caminhao: new Date().getFullYear(),
+      cor_caminhao: "",
+      placa_caminhao: "",
+    });
   };
 
   const handleSalvar = async () => {
     if (!form) return;
-    await salvar(form);
+    if (editIndex === -1) {
+      await motoristaService.create(form, form.empresa_id);
+    } else if (editIndex !== null) {
+      await motoristaService.update(motoristas[editIndex].id, form, form.empresa_id);
+    }
+    await refetch();
     setEditIndex(null);
     setForm(null);
   };
@@ -30,113 +66,72 @@ export const MotoristaDadosPage = () => {
     setForm(null);
   };
 
- 
-  if (!motoristas) {
-    return <Skeleton />;
-  }
+  const handleExcluir = async (id: string) => {
+  if (!empresa) return;
+  await motoristaService.delete(id, empresa.id);
+  await refetch();
+};
+
+
+  if (loading) return <Skeleton />;
+  if (error) return <Feedback tipo="erro" msg={error} />;
 
   return (
     <PageShell
       titulo="Motoristas"
-      subtitulo="Gerencie os motoristas vinculados às viagens."
+      subtitulo="Gerencie os motoristas vinculados à empresa."
       acao={
-        <button
-          onClick={() => navigate("/home")}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-black text-orange-500 border border-orange-500 hover:bg-orange-600 hover:text-white transition-colors"
-        >
-          ← Voltar ao Dashboard
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate("/home")}
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-black text-orange-500 border border-orange-500 hover:bg-orange-600 hover:text-white transition-colors"
+          >
+            ← Voltar ao Dashboard
+          </button>
+          <button
+            onClick={startCreate}
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-black text-green-500 border border-green-500 hover:bg-green-600 hover:text-white transition-colors"
+          >
+            + Adicionar Motorista
+          </button>
+        </div>
       }
     >
-      {erro && <Feedback tipo="erro" msg={erro} />}
-      {sucesso && <Feedback tipo="sucesso" msg="✓ Dados salvos com sucesso." />}
-
       <div className="flex flex-col gap-6">
-        {motoristas.map((m, index) =>
-          editIndex === index && form ? (
-            <div key={m.id} className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6 flex flex-col gap-5">
-              <Field label="Nome">
+        {editIndex !== null && form ? (
+          <div className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6 flex flex-col gap-5">
+            {Object.entries(form).map(([key, value]) => (
+              <Field key={key} label={key}>
                 <input
-                  type="text"
-                  value={form.nome}
-                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                  type={typeof value === "number" ? "number" : "text"}
+                  value={value as string | number}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      [key]: typeof value === "number" ? Number(e.target.value) : e.target.value,
+                    })
+                  }
                   className={inputCls}
                 />
               </Field>
-              <Field label="CPF">
-                <input
-                  type="text"
-                  value={form.cpf}
-                  onChange={(e) => setForm({ ...form, cpf: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="CNH">
-                <input
-                  type="text"
-                  value={form.cnh}
-                  onChange={(e) => setForm({ ...form, cnh: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Telefone">
-                <input
-                  type="text"
-                  value={form.telefone}
-                  onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Placa do caminhão">
-                <input
-                  type="text"
-                  value={form.placa_caminhao}
-                  onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Modelo do caminhão">
-                <input
-                  type="text"
-                  value={form.modelo_caminhao}
-                  onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Cor do caminhão">
-                <input
-                  type="text"
-                  value={form.cor_caminhao}
-                  onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })}
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Ano do caminhão">
-                <input
-                  type="number"
-                  value={form.ano_caminhao}
-                  onChange={(e) => setForm({ ...form, ano_caminhao: Number(e.target.value) })}
-                  className={inputCls}
-                />
-              </Field>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSalvar}
-                  disabled={salvando}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors"
-                >
-                  {salvando ? "Salvando..." : "Salvar"}
-                </button>
-                <button
-                  onClick={handleCancelar}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
-                >
-                  Cancelar
-                </button>
-              </div>
+            ))}
+            <div className="flex gap-2">
+              <button
+                onClick={handleSalvar}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
+              >
+                Salvar
+              </button>
+              <button
+                onClick={handleCancelar}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
             </div>
-          ) : (
+          </div>
+        ) : (
+          motoristas.map((m, index) => (
             <div key={m.id} className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6">
               <p className="text-orange-500 font-semibold">Nome: <span className="text-white">{m.nome}</span></p>
               <p className="text-orange-500 font-semibold">CPF: <span className="text-white">{m.cpf}</span></p>
@@ -155,14 +150,14 @@ export const MotoristaDadosPage = () => {
                   Editar
                 </button>
                 <button
-                  onClick={() => excluir(m.id)}
+                  onClick={() => handleExcluir(m.id)}
                   className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
                 >
                   Excluir
                 </button>
               </div>
             </div>
-          )
+          ))
         )}
       </div>
     </PageShell>
@@ -203,7 +198,7 @@ const Skeleton = () => (
       <p className="text-center text-gray-500 dark:text-neutral-400">
         Carregando dados...
       </p>
-     <div className="h-6 w-48 rounded bg-gray-200 dark:bg-neutral-800" />
-     <div className="h-64 rounded-xl bg-gray-200 dark:bg-neutral-800" />
+    <div className="h-6 w-48 rounded bg-gray-200 dark:bg-neutral-800" />
+    <div className="h-64 rounded-xl bg-gray-200 dark:bg-neutral-800" />
   </div>
 );
