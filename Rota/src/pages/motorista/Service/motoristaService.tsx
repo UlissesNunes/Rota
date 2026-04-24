@@ -1,7 +1,6 @@
 // src/domains/motorista/Service/motoristaService.ts
 import { supabase } from "../../../infra/superBaseClient";
 import type { Motorista, MotoristaUpdatePayload } from "../Types/motoristaTypes";
-
 export const motoristaService = {
   async fetch(empresaId: string): Promise<Motorista[]> {
     const { data, error } = await supabase

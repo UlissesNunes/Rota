@@ -3,19 +3,29 @@
 // Carrega UMA VEZ e distribui via context
 
 import { createContext } from "react";
+import type { EmpresaUpdatePayload } from "../pages/empresa/Types/EmpresaTypes";
 
 
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
+export type EmpresaDb = {
+  id: string;
+  nome: string;
+  email: string;
+  whatsapp: string;
+  plano: "gratuito" | "pro" | "enterprise";
+  cnpj: string;
+  endereco: string;
+};
 
 export type EmpresaEstado = {
   cnpj: string;
   endereco: string;
-  id:             string;
-  nome:           string;
-  email:          string;
-  whatsapp:       string;
-  plano:          "gratuito" | "pro" | "enterprise";
+  id:  string;
+  nome: string;
+  email: string;
+  whatsapp: string;
+  plano:  "gratuito" | "pro" | "enterprise";
 
   // Estado derivado — usado por guards e sidebar
   temMotoristas:  boolean;
@@ -30,6 +40,7 @@ export type EmpresaContextType = {
   loading:  boolean;
   error:    string | null;
   refetch:  () => void;
+  updateEmpresa: (payload: EmpresaUpdatePayload) => Promise<void>;
 };
 
 // ── Context ───────────────────────────────────────────────────────────────────

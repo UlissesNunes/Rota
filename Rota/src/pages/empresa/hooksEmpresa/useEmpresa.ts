@@ -1,47 +1,29 @@
-// src/domains/empresa/hooks/useEmpresa.ts
-// FIX #4: hook NÃO passa userId nem empresaId ao useCase
-// Contrato limpo: hook entrega input → useCase valida → service persiste
-
-import { useState } from "react";
-import type { EmpresaUpdateInput } from "../Types/EmpresaTypes";
-import { updateEmpresaUseCase } from "../UseCase/EmpresaUpdateUseCase";
+// src/hooks/useEmpresaForm.ts
 import { useContext } from "react";
 import { EmpresaContext } from "../../../contexts/EmpresaContext";
+import type { EmpresaUpdatePayload } from "../Types/EmpresaTypes";
 
 
-export const useEmpresaForm = () => {
-  const { empresa, refetch } = useEmpresaCtx();
-  const [salvando, setSalvando] = useState(false);
-  const [erro,     setErro]     = useState<string | null>(null);
-  const [sucesso,  setSucesso]  = useState(false);
+export function useEmpresaForm() {
+  const ctx = useContext(EmpresaContext);
 
-  const salvar = async (input: EmpresaUpdateInput) => {
-    setSalvando(true);
-    setErro(null);
-    setSucesso(false);
-
-    // FIX #4: apenas input — sem userId, sem empresaId
-    const result = await updateEmpresaUseCase(empresa, input);
-
-    if (result.error) {
-      setErro(result.error);
-    } else {
-      setSucesso(true);
-      refetch(); // atualiza EmpresaContext com os novos dados
-    }
-
-    setSalvando(false);
-  };
-
-  return { empresa, salvando, erro, sucesso, salvar };
-};
-
-function useEmpresaCtx() {
-  const context = useContext(EmpresaContext);
-  
-  if (!context) {
-    throw new Error("useEmpresaForm deve ser usado dentro de um EmpresaProvider.");
+  if (!ctx) {
+    throw new Error("useEmpresaForm deve ser usado dentro de EmpresaProvider");
   }
 
-  return context;
+  const { empresa, loading, error, refetch, updateEmpresa } = ctx;
+
+  // Interface simplificada para o formulário
+  async function salvar(payload: EmpresaUpdatePayload) {
+    await updateEmpresa(payload);
+  }
+
+  return {
+    empresa,
+    salvando: loading,   // reaproveita o estado de carregamento
+    erro: error,
+    sucesso: false,      // pode ser controlado no Provider se quiser
+    salvar,
+    refetch,
+  };
 }

@@ -14,6 +14,7 @@ import { MotoristaProvider } from "../contexts/MotoristaProvider";
 import RotaTermosDeUso from "../pages/RotaTermosDeUso/RotaTermosDeUso";
 import RotaPoliticaDePrivacidade from "../pages/RotaPoliticaDePrivacidade/RotaPoliticaDePrivacidade";
 
+
 export function AppRoutes() {
   const { state } = useAuth();
 
@@ -53,14 +54,15 @@ export function AppRoutes() {
         <Route path="*" element={<Navigate to="/login" replace />} />
           
      
-       <Route
+ <Route
   path="/empresa/dados"
   element={
-     <EmpresaProvider>
+    <EmpresaProvider>
       <EmpresaDadosPage />
-     </EmpresaProvider>
+    </EmpresaProvider>
   }
 />
+
       <Route
   path="/motorista/Inicial"
   element={

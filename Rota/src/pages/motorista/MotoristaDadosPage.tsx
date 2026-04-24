@@ -1,213 +1,185 @@
-// src/domains/motorista/pages/MotoristaDadosPage.tsx
+// src/pages/motorista/MotoristaDadosPage.tsx
 import { useState } from "react";
-
-import { DashboardLayout } from "../../components/DashboardLayout";
+import { useNavigate } from "react-router-dom";
 import { PageShell } from "../../components/PageShell/PageShell";
-import type { Motorista, MotoristaUpdateInput } from "./Types/motoristaTypes";
 import { useMotoristaForm } from "./hooksMotorista/useMotorista";
-import { useEmpresa } from "../../contexts/useEmpresa"; // hook correto
+import type { MotoristaUpdatePayload } from "./Types/motoristaTypes";
+
 
 export const MotoristaDadosPage = () => {
- const { empresa } = useEmpresa();
-const { motoristas, salvando, erro, sucesso, salvar, excluir } = useMotoristaForm();
+  const { motoristas, salvando, erro, sucesso, salvar, excluir } = useMotoristaForm();
+  const navigate = useNavigate();
 
-const [formVisible, setFormVisible] = useState(false);
-const [editando, setEditando] = useState<Motorista | null>(null);
-const [form, setForm] = useState<MotoristaUpdateInput>(
-  getInitialFormState(empresa?.id ?? "") // usa "" se ainda não carregou
-);
-const [mensagemErro, setMensagemErro] = useState<string | null>(null);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [form, setForm] = useState<MotoristaUpdatePayload | null>(null);
 
-// Bloqueia renderização até empresa estar disponível
-if (!empresa) {
-  return (
-    <DashboardLayout>
-      <PageShell titulo="Motoristas" subtitulo="Gerencie motoristas e seus caminhões.">
-        <p>Carregando dados da empresa...</p>
-      </PageShell>
-    </DashboardLayout>
-  );
-}
+  const startEdit = (index: number) => {
+    setEditIndex(index);
+    setForm({ ...motoristas[index] });
+  };
+
   const handleSalvar = async () => {
-    if (!form.nome || !form.cpf || !form.cnh || !form.telefone) {
-      setMensagemErro("Todos os campos obrigatórios devem ser preenchidos.");
-      return;
-    }
-
-    setMensagemErro(null);
-
-    try {
-      const payload = { ...form, empresa_id: empresa.id }; // empresa_id sempre válido
-
-      if (editando) {
-        await salvar(payload, editando);
-        setEditando(null);
-      } else {
-        await salvar(payload);
-      }
-
-      setForm(getInitialFormState(empresa.id));
-      setFormVisible(false);
-    } catch (err) {
-      setMensagemErro(err instanceof Error ? err.message : "Erro inesperado ao salvar motorista.");
-    }
+    if (!form) return;
+    await salvar(form);
+    setEditIndex(null);
+    setForm(null);
   };
 
-  const handleEditar = (m: Motorista) => {
-    setEditando(m);
-    setForm({
-      empresa_id: empresa.id,
-      nome: m.nome,
-      cpf: m.cpf,
-      cnh: m.cnh,
-      telefone: m.telefone,
-      ativo: m.ativo,
-      modelo_caminhao: m.modelo_caminhao,
-      ano_caminhao: m.ano_caminhao,
-      cor_caminhao: m.cor_caminhao,
-      placa_caminhao: m.placa_caminhao,
-    });
-    setFormVisible(true);
+  const handleCancelar = () => {
+    setEditIndex(null);
+    setForm(null);
   };
 
-  const handleExcluir = (id: string) => excluir(id);
+ 
+  if (!motoristas) {
+    return <Skeleton />;
+  }
 
   return (
-    <DashboardLayout>
-      <PageShell
-        titulo="Motoristas"
-        subtitulo="Gerencie motoristas e seus caminhões."
-        acao={
-          <button
-            onClick={() => setFormVisible(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#FE751B] text-white hover:bg-[#e56510] transition-colors"
-          >
-            + Criar Motorista
-          </button>
-        }
-      >
-        {/* Lista */}
-        {!formVisible && (
-          <div className="bg-white dark:bg-neutral-900 border rounded-xl p-6">
-            {motoristas.length === 0 ? (
-              <p className="text-gray-500">
-                Nenhum motorista cadastrado. Clique em “Criar Motorista” para adicionar.
-              </p>
-            ) : (
-              <ul className="divide-y divide-gray-200 dark:divide-neutral-700">
-                {motoristas.map((m) => (
-                  <li key={m.id} className="py-2 flex justify-between items-center">
-                    <span>{m.nome} — {m.telefone} — {m.placa_caminhao}</span>
-                    <div className="flex gap-2">
-                      <button onClick={() => handleEditar(m)} className="text-blue-600">Editar</button>
-                      <button onClick={() => handleExcluir(m.id)} className="text-red-600">Excluir</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+    <PageShell
+      titulo="Motoristas"
+      subtitulo="Gerencie os motoristas vinculados às viagens."
+      acao={
+        <button
+          onClick={() => navigate("/home")}
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-black text-orange-500 border border-orange-500 hover:bg-orange-600 hover:text-white transition-colors"
+        >
+          ← Voltar ao Dashboard
+        </button>
+      }
+    >
+      {erro && <Feedback tipo="erro" msg={erro} />}
+      {sucesso && <Feedback tipo="sucesso" msg="✓ Dados salvos com sucesso." />}
 
-        {/* Formulário */}
-        {formVisible && (
-          <div className="bg-white dark:bg-neutral-900 border rounded-xl p-6 flex flex-col gap-5">
-            <h2 className="text-lg font-semibold">
-              {editando ? "Editar Motorista" : "Novo Motorista"}
-            </h2>
+      <div className="flex flex-col gap-6">
+        {motoristas.map((m, index) =>
+          editIndex === index && form ? (
+            <div key={m.id} className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6 flex flex-col gap-5">
+              <Field label="Nome">
+                <input
+                  type="text"
+                  value={form.nome}
+                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="CPF">
+                <input
+                  type="text"
+                  value={form.cpf}
+                  onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="CNH">
+                <input
+                  type="text"
+                  value={form.cnh}
+                  onChange={(e) => setForm({ ...form, cnh: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Telefone">
+                <input
+                  type="text"
+                  value={form.telefone}
+                  onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Placa do caminhão">
+                <input
+                  type="text"
+                  value={form.placa_caminhao}
+                  onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Modelo do caminhão">
+                <input
+                  type="text"
+                  value={form.modelo_caminhao}
+                  onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Cor do caminhão">
+                <input
+                  type="text"
+                  value={form.cor_caminhao}
+                  onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Ano do caminhão">
+                <input
+                  type="number"
+                  value={form.ano_caminhao}
+                  onChange={(e) => setForm({ ...form, ano_caminhao: Number(e.target.value) })}
+                  className={inputCls}
+                />
+              </Field>
 
-            {/* Campos */}
-            <Field label="Nome completo *">
-              <input type="text" value={form.nome}
-                onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="CPF *">
-              <input type="text" value={form.cpf}
-                onChange={(e) => setForm({ ...form, cpf: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="CNH *">
-              <input type="text" value={form.cnh}
-                onChange={(e) => setForm({ ...form, cnh: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="Telefone *">
-              <input type="text" value={form.telefone}
-                onChange={(e) => setForm({ ...form, telefone: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="Ativo">
-              <input type="checkbox" checked={form.ativo}
-                onChange={(e) => setForm({ ...form, ativo: e.target.checked })} />
-            </Field>
-            <Field label="Modelo do caminhão *">
-              <input type="text" value={form.modelo_caminhao}
-                onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="Ano do caminhão *">
-              <input type="number" value={form.ano_caminhao}
-                onChange={(e) => setForm({ ...form, ano_caminhao: parseInt(e.target.value) || 0 })}
-                className={inputCls} />
-            </Field>
-            <Field label="Cor do caminhão *">
-              <input type="text" value={form.cor_caminhao}
-                onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })}
-                className={inputCls} />
-            </Field>
-            <Field label="Placa do caminhão *">
-              <input type="text" value={form.placa_caminhao}
-                onChange={(e) => setForm({ ...form, placa_caminhao: e.target.value })}
-                className={inputCls} />
-            </Field>
-
-            {/* Feedback */}
-            {mensagemErro && <Feedback tipo="erro" msg={mensagemErro} />}
-            {erro && <Feedback tipo="erro" msg={erro} />}
-            {sucesso && <Feedback tipo="sucesso" msg="✓ Motorista salvo com sucesso." />}
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleSalvar}
-                disabled={salvando}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#FE751B] text-white hover:bg-[#e56510] disabled:opacity-50 transition-colors"
-              >
-                {salvando ? "Salvando..." : editando ? "Atualizar Motorista" : "Salvar Motorista"}
-              </button>
-              <button
-                onClick={() => { setFormVisible(false); setEditando(null); }}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-gray-200 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors"
-              >
-                Cancelar
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSalvar}
+                  disabled={salvando}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-colors"
+                >
+                  {salvando ? "Salvando..." : "Salvar"}
+                </button>
+                <button
+                  onClick={handleCancelar}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div key={m.id} className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6">
+              <p className="text-orange-500 font-semibold">Nome: <span className="text-white">{m.nome}</span></p>
+              <p className="text-orange-500 font-semibold">CPF: <span className="text-white">{m.cpf}</span></p>
+              <p className="text-orange-500 font-semibold">CNH: <span className="text-white">{m.cnh}</span></p>
+              <p className="text-orange-500 font-semibold">Telefone: <span className="text-white">{m.telefone}</span></p>
+              <p className="text-orange-500 font-semibold">Placa: <span className="text-white">{m.placa_caminhao}</span></p>
+              <p className="text-orange-500 font-semibold">Modelo: <span className="text-white">{m.modelo_caminhao}</span></p>
+              <p className="text-orange-500 font-semibold">Cor: <span className="text-white">{m.cor_caminhao}</span></p>
+              <p className="text-orange-500 font-semibold">Ano: <span className="text-white">{m.ano_caminhao}</span></p>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => startEdit(index)}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-orange-500 border border-orange-500 hover:bg-orange-600 hover:text-white transition-colors"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => excluir(m.id)}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-black text-red-500 border border-red-500 hover:bg-red-600 hover:text-white transition-colors"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          )
         )}
-      </PageShell>
-    </DashboardLayout>
+      </div>
+    </PageShell>
   );
 };
 
-function getInitialFormState(empresaId: string): MotoristaUpdateInput {
-  return {
-    empresa_id: empresaId,
-    nome: "",
-    cpf: "",
-    cnh: "",
-    telefone: "",
-    ativo: true,
-    modelo_caminhao: "",
-    ano_caminhao: 0,
-    cor_caminhao: "",
-    placa_caminhao: "",
-  };
-}
+const inputCls = `
+  w-full px-3 py-2 rounded-lg text-sm
+  bg-black text-orange-500
+  border border-orange-500
+  placeholder:text-gray-400
+  focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition
+`;
 
-const inputCls = `w-full px-3 py-2 rounded-lg text-sm bg-gray-50 dark:bg-neutral-800 border text-gray-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#FE751B]/30 transition`;
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-neutral-400">
+    <label className="text-[11px] font-semibold uppercase tracking-wider text-orange-500">
       {label}
     </label>
     {children}
@@ -215,11 +187,23 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 );
 
 const Feedback = ({ tipo, msg }: { tipo: "erro" | "sucesso"; msg: string }) => (
-  <div
-    className={`px-4 py-2 rounded-lg text-sm ${
-      tipo === "erro" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+  <p
+    className={`text-[12px] rounded-lg px-3 py-2 border ${
+      tipo === "erro"
+        ? "text-red-600 bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/20 dark:text-red-400"
+        : "text-green-600 bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/20 dark:text-green-400"
     }`}
   >
     {msg}
+  </p>
+);
+
+const Skeleton = () => (
+  <div className="max-w-2xl mx-auto px-5 py-8 animate-pulse flex flex-col gap-4">
+      <p className="text-center text-gray-500 dark:text-neutral-400">
+        Carregando dados...
+      </p>
+     <div className="h-6 w-48 rounded bg-gray-200 dark:bg-neutral-800" />
+     <div className="h-64 rounded-xl bg-gray-200 dark:bg-neutral-800" />
   </div>
 );

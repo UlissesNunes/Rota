@@ -1,34 +1,26 @@
-// src/domains/empresa/types/empresa.types.ts
-
 export type PlanoTipo = "gratuito" | "pro" | "enterprise";
 
 export type Empresa = {
-  endereco: string;
-  cnpj: string;
-  id:       string;
-  nome:     string;
-  email:    string;
+  id: string;
+  nome: string;
+  email: string;
   whatsapp: string;
-  plano:    PlanoTipo;
-};
-
-// FIX #1: todos os campos opcionais — permite PATCH real
-// Nenhum campo obrigatório — o useCase normaliza e valida o que foi enviado
-export type EmpresaUpdateInput = {
   cnpj: string;
   endereco: string;
-  nome?:     string;
-  email?:    string | null;
-  whatsapp?: string | null;
+  plano: PlanoTipo;
 };
 
-// O que realmente é enviado ao banco após normalização no useCase
-// Campos undefined são excluídos — nunca sobrescrevem dados existentes
-export type EmpresaUpdatePayload = {
-  nome?:     string;
-  email?:    string | null;
-  whatsapp?: string | null;
-  cnpj?:     string;
-  endereco?: string;
-  
+// Formulário controlado: todos os campos obrigatórios
+export type EmpresaUpdateInput = {
+  nome: string;
+  email: string;
+  whatsapp: string;
+  cnpj: string;
+  endereco: string;
 };
+
+// Payload para API: PATCH real
+
+export type EmpresaUpdatePayload = Partial<
+  Pick<Empresa, "nome" | "cnpj" | "email" | "whatsapp" | "endereco" | "plano">
+>;

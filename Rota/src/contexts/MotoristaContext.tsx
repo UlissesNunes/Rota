@@ -1,9 +1,11 @@
 // src/contexts/MotoristaContext.tsx
 import { createContext } from "react";
 
-export type Motorista = {
+// Estrutura vinda do banco
+export type MotoristaDb = {
+  id: string;
   empresa_id: string;
-  placa_caminhao: string ;
+  placa_caminhao: string;
   cor_caminhao: string;
   ano_caminhao: number;
   cpf: string;
@@ -12,11 +14,15 @@ export type Motorista = {
   cnh: string;
   telefone: string;
   ativo: boolean;
-  id: string;
+};
+
+// Estado derivado — usado em guards e UI
+export type MotoristaEstado = MotoristaDb & {
+  configurado: boolean; // nome != "Novo Motorista" && cnh preenchido
 };
 
 export type MotoristaContextType = {
-  motoristas: Motorista[];
+  motoristas: MotoristaEstado[];
   loading: boolean;
   error: string | null;
   refetch: () => void;

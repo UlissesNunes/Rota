@@ -12,7 +12,13 @@ export async function updateEmpresaUseCase(
   empresa: EmpresaEstado | null,
   input: EmpresaUpdateInput
 ): Promise<UseCaseVoidResult> {
-  const normalized: EmpresaUpdatePayload = {};
+  const normalized: EmpresaUpdatePayload = {
+    cnpj: "",
+    endereco: "",
+    nome: "",
+    email: "",
+    whatsapp: "",
+  };
 
   if (input.nome !== undefined) {
     const nome = input.nome.trim();
@@ -25,7 +31,7 @@ export async function updateEmpresaUseCase(
   if (input.email !== undefined) {
     const email = (input.email ?? "").trim();
     if (email === "") {
-      normalized.email = null;
+      normalized.email = "email não informado";
     } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return { error: "E-mail inválido." };
     } else {
@@ -37,7 +43,7 @@ export async function updateEmpresaUseCase(
     const raw = (input.whatsapp ?? "").trim();
     const digits = raw.replace(/\D/g, "");
     if (raw === "") {
-      normalized.whatsapp = null;
+      normalized.whatsapp = "Não informado";
     } else if (digits.length < 10 || digits.length > 15) {
       return { error: "WhatsApp inválido. Digite entre 10 e 15 dígitos." };
     } else {
