@@ -1,5 +1,6 @@
 // src/hooks/useDashboardData.ts
 import { useEffect, useState, useCallback } from "react";
+import { useEmpresa } from "../contexts/useEmpresa";
 
 import {
   mapEmpresaDTO,
@@ -8,13 +9,15 @@ import {
   mapOnboardingDTO,
   compact,
 } from "../mappers/DashboardMappers";
-import { buildDashboardData, type DashboardViewModel } from "../useCases/DashboarduUeCases";
+
+
 import { fetchEmpresa } from "../services/DashboardEmpresaService";
 import { fetchMotoristas } from "../services/DashboardMotoristaService";
 import { fetchOnboardingSteps } from "../services/DashboardOnboardingServices";
 import { fetchViagens } from "../services/DashboardViagensService";
+import { buildDashboardData, type DashboardViewModel } from "../useCases/DashboarduUeCases";
 
-type UseDashboardDataReturn = {
+export type UseDashboardDataReturn = {
   data:    DashboardViewModel | null;
   loading: boolean;
   error:   string | null;
@@ -22,20 +25,27 @@ type UseDashboardDataReturn = {
 };
 
 export const useDashboardData = (): UseDashboardDataReturn => {
+  const { empresa } = useEmpresa(); // 🔑 hook chamado no topo
+
   const [data,    setData]    = useState<DashboardViewModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
+      if (!empresa) {
+        setData(null);
+        return;
+      }
+
       setLoading(true);
       setError(null);
 
       const [empresaDTO, viagensDTO, motoristasDTO, onboardingDTO] = await Promise.all([
-        fetchEmpresa(),
-        fetchViagens(),
-        fetchMotoristas(),
-        fetchOnboardingSteps(),
+        fetchEmpresa(empresa.id),
+        fetchViagens(empresa.id),
+        fetchMotoristas(empresa.id),
+        fetchOnboardingSteps(empresa.id),
       ]);
 
       setData(buildDashboardData(
@@ -46,10 +56,11 @@ export const useDashboardData = (): UseDashboardDataReturn => {
       ));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro inesperado");
+      setData(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [empresa]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

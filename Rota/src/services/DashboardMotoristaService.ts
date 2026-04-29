@@ -6,11 +6,12 @@ import { supabase } from "../infra/superBaseClient";
 
 
 /** Lista todos os motoristas não deletados da empresa. */
-export async function fetchMotoristas(id: string): Promise<MotoristaDTO[]> {
+export async function fetchMotoristas(empresaId: string): Promise<MotoristaDTO[]> {
   const { data, error } = await supabase
     .from("motoristas")
     .select("id, nome, telefone, status, deleted_at")
     .is("deleted_at", null)
+    .eq("empresa_id", empresaId)
     .order("nome", { ascending: true });
 
   if (error) throw new Error(`motoristasService.fetchMotoristas: ${error.message}`);
@@ -36,22 +37,25 @@ export async function createMotorista(payload: {
 /** Atualiza status do motorista. */
 export async function updateMotoristaStatus(
   id: string,
+  empresaId: string,
   status: MotoristaStatus
 ): Promise<void> {
   const { error } = await supabase
     .from("motoristas")
     .update({ status })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("empresa_id", empresaId);
 
   if (error) throw new Error(`motoristasService.updateMotoristaStatus: ${error.message}`);
 }
 
 /** Soft delete. */
-export async function deleteMotorista(id: string): Promise<void> {
+export async function deleteMotorista(id: string, empresaId: string): Promise<void> {
   const { error } = await supabase
     .from("motoristas")
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("empresa_id", empresaId);
 
   if (error) throw new Error(`motoristasService.deleteMotorista: ${error.message}`);
 }

@@ -1,24 +1,15 @@
-// src/services/onboardingService.ts
+// src/services/DashboardOnboardingServices.ts
 import { supabase } from "../infra/superBaseClient";
 import type { OnboardingStepDTO } from "../types/DashboardDto";
 
-/** Lista os passos de onboarding da empresa, ordenados. */
-export async function fetchOnboardingSteps(): Promise<OnboardingStepDTO[]> {
+/** Lista os passos de onboarding da empresa. */
+export async function fetchOnboardingSteps(empresaId: string): Promise<OnboardingStepDTO[]> {
   const { data, error } = await supabase
     .from("onboarding_status")
     .select("id, titulo, descricao, rota, acao, concluido, ordem")
+    .eq("empresa_id", empresaId)
     .order("ordem", { ascending: true });
 
-  if (error) throw new Error(`onboardingService.fetchOnboardingSteps: ${error.message}`);
+  if (error) throw new Error(`DashboardOnboardingServices.fetchOnboardingSteps: ${error.message}`);
   return (data ?? []) as OnboardingStepDTO[];
-}
-
-/** Marca um passo como concluído. */
-export async function completeOnboardingStep(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("onboarding_status")
-    .update({ concluido: true })
-    .eq("id", id);
-
-  if (error) throw new Error(`onboardingService.completeOnboardingStep: ${error.message}`);
 }

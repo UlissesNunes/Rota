@@ -31,8 +31,8 @@ const NAV_GROUPS: NavGroup[] = [
     icon: <Icon d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />,
     items: [
       { label: "Criar viagem", to: "/viagens/nova" },
-      { label: "Gestão de frota", to: "/painel/frota" },
-      { label: "Relatórios", to: "/painel/relatorios" },
+      { label: "Enviar Frete", to: "/viagens/EnviarFrete" },
+      { label: "Gestão de Viagens", to: "/viagens/gestao" },
     ],
   },
   {
@@ -56,19 +56,9 @@ const NAV_GROUPS: NavGroup[] = [
     ),
     items: [
       { label: "Motoristas", to: "/motorista/Inicial" },
-      { label: "Funcionários", to: "/equipe/funcionarios" },
     ],
   },
-  {
-    label: "Produtos",
-    icon: (
-      <Icon d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-    ),
-    items: [
-      { label: "Serviços", to: "/produtos/servicos" },
-      { label: "Categorias", to: "/produtos/categorias" },
-    ],
-  },
+  
   {
     label: "Sistema",
     icon: (
@@ -87,34 +77,11 @@ const NAV_GROUPS: NavGroup[] = [
       </svg>
     ),
     items: [
-      { label: "Configurações", to: "/sistema/configuracoes" },
-      { label: "Notificações", to: "/sistema/notificacoes" },
-    ],
-  },
-  {
-    label: "Financeiro",
-    icon: (
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="1" y="4" width="22" height="16" rx="2" />
-        <path d="M1 10h22" />
-      </svg>
-    ),
-    items: [
-      { label: "Plano atual", to: "/financeiro/plano" },
-      { label: "Pagamentos", to: "/financeiro/pagamentos" },
+      { label: "Configurações", to: "/sistema/configuracoes" }
+     
     ],
   },
 ];
-
 type SidebarProps = { open: boolean; onClose: () => void };
 
 export const Sidebar = ({ open, onClose }: SidebarProps) => {

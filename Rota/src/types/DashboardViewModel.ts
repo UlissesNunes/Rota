@@ -1,3 +1,4 @@
+
 // src/types/viewModel.ts
 // Modelos prontos para componentes — nunca contêm lógica de negócio
 
@@ -15,4 +16,14 @@ export type ChartViagensViewModel = {
 export type ChartMotoristaViewModel = {
   name:  string;
   value: number;
+};
+
+export type OnboardingStep = {
+  id:        string;
+  titulo:    string;
+  descricao: string;
+  rota:      string;
+  acao:      string;
+  concluido: boolean;
+  ordem:     number;
 };

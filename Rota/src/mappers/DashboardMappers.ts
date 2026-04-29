@@ -31,8 +31,8 @@ export function mapEmpresaDTO(dto: EmpresaDTO): Empresa {
   return {
     id:       dto.id,
     nome:     dto.nome     ?? 'Nova Empresa',
-    email:    dto.email    ?? '',
-    whatsapp: dto.whatsapp ?? '',
+    email:    dto.email    ?? 'email não informado',
+    whatsapp: dto.whatsapp ?? 'whatsapp não informado',
     plano:    toPlano(dto.plano),
   };
 }
@@ -41,8 +41,8 @@ export function mapViagensDTO(dto: ViagensDTO): Viagens | null {
   if (!dto.id) return null;
   return {
     id:          dto.id,
-    origem:      dto.origem  ?? '',
-    destino:     dto.destino ?? '',
+    origem:      dto.origem  ?? 'origem não informada',
+    destino:     dto.destino ?? 'destino não informado',
     status:      toVStatus(dto.status),
     motoristaId: dto.motorista_id ?? null,
     criadoEm:    dto.created_at ?? new Date().toISOString(),
@@ -54,7 +54,7 @@ export function mapMotoristaDTO(dto: MotoristaDTO): Motorista | null {
   return {
     id:       dto.id,
     nome:     dto.nome     ?? 'Motorista sem nome',
-    telefone: dto.telefone ?? '',
+    telefone: dto.telefone ?? 'telefone não informado',
     status:   toMStatus(dto.status),
   };
 }
@@ -72,8 +72,8 @@ export function mapOnboardingDTO(dto: OnboardingStepDTO): OnboardingStep | null 
   if (!dto.id) return null;
   return {
     id:        dto.id,
-    titulo:    dto.titulo    ?? '',
-    descricao: dto.descricao ?? '',
+    titulo:    dto.titulo    ?? 'Título não informado',
+    descricao: dto.descricao ?? 'Descrição não informada',
     rota:      dto.rota      ?? '/',
     acao:      dto.acao      ?? 'Acessar',
     concluido: dto.concluido ?? false,

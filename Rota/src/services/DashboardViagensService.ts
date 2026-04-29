@@ -1,19 +1,21 @@
-// src/services/viagensService.ts
+// src/services/DashboardViagensService.ts
+import type { ViagensStatus } from "../domain/DashboardDomain";
 import { supabase } from "../infra/superBaseClient";
 import type { ViagensDTO } from "../types/DashboardDto";
-import type { ViagensStatus } from "../domain/DashboardDomain";
 
-/** Lista todas as viagens não deletadas da empresa. */
-export async function fetchViagens(): Promise<ViagensDTO[]> {
+/** Lista todas as viagens da empresa. */
+export async function fetchViagens(empresaId: string): Promise<ViagensDTO[]> {
   const { data, error } = await supabase
     .from("viagens")
     .select("id, origem, destino, status, motorista_id, created_at, deleted_at")
+    .eq("empresa_id", empresaId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
-  if (error) throw new Error(`viagensService.fetchViagens: ${error.message}`);
+  if (error) throw new Error(`DashboardViagensService.fetchViagens: ${error.message}`);
   return (data ?? []) as ViagensDTO[];
 }
+
 
 /** Busca uma viagem específica por ID. */
 export async function fetchViagensById(id: string): Promise<ViagensDTO> {

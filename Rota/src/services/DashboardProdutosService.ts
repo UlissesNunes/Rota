@@ -1,19 +1,18 @@
-// src/services/produtosService.ts
-
+// src/services/ProdutosService.ts
 import type { UnidadeProduto } from "../domain/DashboardDomain";
-import type { ProdutoDTO } from "../types/DashboardDto";
 import { supabase } from "../infra/superBaseClient";
+import type { ProdutoDTO } from "../types/DashboardDto";
 
-
-/** Lista todos os produtos não deletados da empresa. */
-export async function fetchProdutos(): Promise<ProdutoDTO[]> {
+/** Lista todos os produtos da empresa. */
+export async function fetchProdutos(empresaId: string): Promise<ProdutoDTO[]> {
   const { data, error } = await supabase
     .from("produtos")
     .select("id, nome, unidade, deleted_at")
+    .eq("empresa_id", empresaId)
     .is("deleted_at", null)
     .order("nome", { ascending: true });
 
-  if (error) throw new Error(`produtosService.fetchProdutos: ${error.message}`);
+  if (error) throw new Error(`ProdutosService.fetchProdutos: ${error.message}`);
   return (data ?? []) as ProdutoDTO[];
 }
 
