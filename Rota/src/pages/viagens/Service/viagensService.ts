@@ -1,11 +1,45 @@
-// src/pages/viagens/Service/viagensService.ts
+// src/pages/viagens/Service/ViagensService.ts
 
 import { supabase } from "../../../infra/superBaseClient";
-import type { ViagemCreateInput, ViagemUpdateInput, Viagem } from "../Types/viagensTypes";
+import type { Viagem, ViagemCreateInput, ViagemUpdateInput, ViagensStatus } from "../Types/TypesViagens";
 
-/**
- * Busca todas as viagens da empresa
- */
+// ── Tipo interno do payload de update ────────────────────────────────────────
+// Espelha exatamente as colunas do banco — sem any, sem Record genérico.
+
+type ViagemUpdatePayload = {
+  origem?:       string;
+  destino?:      string;
+  motorista_id?: string | null;
+  status?:       ViagensStatus;
+  data_agendada?: string;
+};
+
+// ── Mapper: linha do banco → Viagem ──────────────────────────────────────────
+
+function rowToViagem(row: {
+  id:                   string;
+  origem:               string;
+  destino:              string;
+  status:               string;
+  motorista_id:         string | null;
+  data_agendada:        string | null;
+  lembrete_enviado_em:  string | null;
+  created_at:           string;
+}): Viagem {
+  return {
+    id:                row.id,
+    origem:            row.origem,
+    destino:           row.destino,
+    status:            row.status as ViagensStatus,
+    motoristaId:       row.motorista_id,
+    dataAgendada:      row.data_agendada,
+    lembreteEnviadoEm: row.lembrete_enviado_em,
+    criadoEm:          row.created_at,
+  };
+}
+
+// ── fetch ─────────────────────────────────────────────────────────────────────
+
 async function fetch(empresaId: string): Promise<Viagem[]> {
   const { data, error } = await supabase
     .from("viagens")
@@ -16,59 +50,44 @@ async function fetch(empresaId: string): Promise<Viagem[]> {
 
   if (error) throw new Error(`viagensService.fetch: ${error.message}`);
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    origem: row.origem,
-    destino: row.destino,
-    status: row.status,
-    motoristaId: row.motorista_id,
-    dataAgendada: row.data_agendada,
-    lembreteEnviadoEm: row.lembrete_enviado_em,
-    criadoEm: row.created_at,
-  }));
+  return (data ?? []).map(rowToViagem);
 }
 
-/**
- * Cria uma nova viagem
- */
+// ── create ────────────────────────────────────────────────────────────────────
+
 async function create(input: ViagemCreateInput, empresaId: string): Promise<Viagem> {
   const { data, error } = await supabase
     .from("viagens")
     .insert({
-      empresa_id: empresaId,
-      origem: input.origem,
-      destino: input.destino,
-      motorista_id: input.motoristaId || null,
+      empresa_id:    empresaId,
+      origem:        input.origem,
+      destino:       input.destino,
+      motorista_id:  input.motoristaId ?? null,  // undefined → null no banco
       data_agendada: input.dataAgendada,
-      status: "pendente",
+      status:        "pendente" satisfies ViagensStatus,
     })
-    .select()
+    .select("id, origem, destino, status, motorista_id, data_agendada, lembrete_enviado_em, created_at")
     .single();
 
   if (error) throw new Error(`viagensService.create: ${error.message}`);
 
-  return {
-    id: data.id,
-    origem: data.origem,
-    destino: data.destino,
-    status: data.status,
-    motoristaId: data.motorista_id,
-    dataAgendada: data.data_agendada,
-    lembreteEnviadoEm: data.lembrete_enviado_em,
-    criadoEm: data.created_at,
-  };
+  return rowToViagem(data);
 }
 
-/**
- * Atualiza uma viagem existente
- */
-async function update(id: string, input: ViagemUpdateInput, empresaId: string): Promise<void> {
-  const payload: Record<string, any> = {};
-  
-  if (input.origem !== undefined) payload.origem = input.origem;
-  if (input.destino !== undefined) payload.destino = input.destino;
-  if (input.motoristaId !== undefined) payload.motorista_id = input.motoristaId;
-  if (input.status !== undefined) payload.status = input.status;
+// ── update ────────────────────────────────────────────────────────────────────
+
+async function update(
+  id:        string,
+  input:     ViagemUpdateInput,
+  empresaId: string,
+): Promise<void> {
+  // Constrói payload apenas com os campos presentes no input
+  const payload: ViagemUpdatePayload = {};
+
+  if (input.origem       !== undefined) payload.origem        = input.origem;
+  if (input.destino      !== undefined) payload.destino       = input.destino;
+  if (input.motoristaId  !== undefined) payload.motorista_id  = input.motoristaId;
+  if (input.status       !== undefined) payload.status        = input.status;
   if (input.dataAgendada !== undefined) payload.data_agendada = input.dataAgendada;
 
   const { error } = await supabase
@@ -80,9 +99,8 @@ async function update(id: string, input: ViagemUpdateInput, empresaId: string): 
   if (error) throw new Error(`viagensService.update: ${error.message}`);
 }
 
-/**
- * Soft delete - marca como deletado
- */
+// ── delete (soft) ─────────────────────────────────────────────────────────────
+
 async function deleteViagem(id: string, empresaId: string): Promise<void> {
   const { error } = await supabase
     .from("viagens")
@@ -92,6 +110,8 @@ async function deleteViagem(id: string, empresaId: string): Promise<void> {
 
   if (error) throw new Error(`viagensService.delete: ${error.message}`);
 }
+
+// ── export ────────────────────────────────────────────────────────────────────
 
 export const viagensService = {
   fetch,
