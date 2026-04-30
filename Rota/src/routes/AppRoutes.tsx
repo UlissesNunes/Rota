@@ -11,6 +11,7 @@ import { EmpresaDadosPage } from "../pages/empresa/empresadadospage";
 import { EmpresaProvider } from "../contexts/EmpresaProvider";
 import { MotoristaDadosPage } from "../pages/motorista/MotoristaDadosPage";
 import { MotoristaProvider } from "../contexts/MotoristaProvider";
+import { ViagemNovaPage } from "../pages/viagens/ViagemNovaPage";
 import RotaTermosDeUso from "../pages/RotaTermosDeUso/RotaTermosDeUso";
 import RotaPoliticaDePrivacidade from "../pages/RotaPoliticaDePrivacidade/RotaPoliticaDePrivacidade";
 
@@ -68,6 +69,11 @@ export function AppRoutes() {
               </MotoristaProvider>
             }
           />
+          {/* Viagens */}
+<Route
+  path="viagens/nova"
+  element={<ViagemNovaPage />}
+/>
         </Route>
 
         {/* Fallback */}

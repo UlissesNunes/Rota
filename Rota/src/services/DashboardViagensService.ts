@@ -32,10 +32,11 @@ export async function fetchViagensById(id: string): Promise<ViagensDTO> {
 
 /** Cria uma nova viagem. */
 export async function createViagens(payload: {
-  empresa_id:   string;
-  origem:       string;
-  destino:      string;
-  motorista_id?: string;
+  empresa_id:      string;
+  origem:          string;
+  destino:         string;
+  motorista_id?:   string;
+  data_agendada?:  string;  // NOVO: ISO timestamp
 }): Promise<ViagensDTO> {
   const { data, error } = await supabase
     .from("viagens")

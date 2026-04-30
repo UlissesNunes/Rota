@@ -14,12 +14,14 @@ export type Empresa = {
 export type ViagensStatus = 'pendente' | 'em_andamento' | 'concluida' | 'cancelada';
 
 export type Viagens = {
-  id:          string;
-  origem:      string;
-  destino:     string;
-  status:      ViagensStatus;
-  motoristaId: string | null;
-  criadoEm:    string; // ISO — created_at
+  id:                 string;
+  origem:             string;
+  destino:            string;
+  status:             ViagensStatus;
+  motoristaId:        string | null;
+  criadoEm:           string;
+  dataAgendada:       string | null;  // NOVO: quando motorista vai descarregar
+  lembreteEnviadoEm:  string | null;  // NOVO: quando n8n enviou WhatsApp
 };
 
 export type MotoristaStatus = 'Ativo' | 'Inativo';
