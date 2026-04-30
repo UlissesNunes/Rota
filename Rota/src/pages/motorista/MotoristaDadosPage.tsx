@@ -1,21 +1,15 @@
 // src/pages/motorista/MotoristaDadosPage.tsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { PageShell } from "../../components/PageShell/PageShell";
 import { useMotoristaCtx } from "../../contexts/useMotoristaCtx";
 import { motoristaService } from "./Service/motoristaService";
 import type { MotoristaUpdatePayload } from "./Types/motoristaTypes";
 import { useEmpresa } from "../../contexts/useEmpresa";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Remove tudo que não for dígito */
 const apenasDigitos = (v: string) => v.replace(/\D/g, "");
 
-/**
- * Aplica máscara (XX) XXXXX-XXXX enquanto o usuário digita.
- * O valor salvo no form é sempre só dígitos (sanitizado no handleSalvar).
- */
 const mascaraTelefone = (valor: string): string => {
   const d = apenasDigitos(valor).slice(0, 11);
   if (d.length === 0) return "";
@@ -25,7 +19,18 @@ const mascaraTelefone = (valor: string): string => {
   return valor;
 };
 
-/** Formata CPF: 000.000.000-00 */
+const placaCaminhao = (valor: string): string => {
+  const d = valor.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 7);
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0,3)}-${d.slice(3)}`;
+  return `${d.slice(0,3)}-${d.slice(3)}`;
+};
+
+const mascaraCnh = (valor: string): string => {
+  const d = apenasDigitos(valor).slice(0, 11);
+  return d;
+};
+
 const mascaraCPF = (valor: string): string => {
   const d = apenasDigitos(valor).slice(0, 11);
   if (d.length <= 3)  return d;
@@ -37,7 +42,7 @@ const mascaraCPF = (valor: string): string => {
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
 type FormState = Omit<MotoristaUpdatePayload, "empresa_id"> & {
-  telefoneDisplay: string; // valor mascarado só para o input
+  telefoneDisplay: string;
   cpfDisplay:      string;
 };
 
@@ -55,29 +60,58 @@ const formVazio = (): FormState => ({
   placa_caminhao:  "",
 });
 
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+type ToastProps = { tipo: "sucesso" | "erro"; msg: string; onClose: () => void };
+
+const Toast = ({ tipo, msg, onClose }: ToastProps) => {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3500);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  return (
+    <div className={`
+      fixed bottom-6 right-6 z-50 flex items-center gap-3
+      px-4 py-3 rounded-xl shadow-lg border text-sm font-medium
+      animate-[toast-in_0.25s_ease]
+      ${tipo === "sucesso"
+        ? "bg-green-500/10 border-green-500/25 text-green-600 dark:text-green-400"
+        : "bg-red-500/10 border-red-500/25 text-red-600 dark:text-red-400"
+      }
+    `}>
+      {tipo === "sucesso"
+        ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+        : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      }
+      <span>{msg}</span>
+      <button onClick={onClose} className="ml-1 opacity-50 hover:opacity-100 transition-opacity">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  );
+};
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export const MotoristaDadosPage = () => {
   const { motoristas, loading, error, refetch } = useMotoristaCtx();
   const { empresa } = useEmpresa();
-  const navigate    = useNavigate();
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [form,      setForm]      = useState<FormState | null>(null);
   const [salvando,  setSalvando]  = useState(false);
-  const [feedback,  setFeedback]  = useState<{ tipo: "erro" | "sucesso"; msg: string } | null>(null);
+  const [toast,     setToast]     = useState<{ tipo: "sucesso" | "erro"; msg: string } | null>(null);
 
-  // ── Ações ────────────────────────────────────────────────
+  const showToast = (tipo: "sucesso" | "erro", msg: string) => setToast({ tipo, msg });
 
   const startCreate = () => {
     if (!empresa) return;
-    setFeedback(null);
     setEditIndex(-1);
     setForm(formVazio());
   };
 
   const startEdit = (index: number) => {
-    setFeedback(null);
     const m = motoristas[index];
     setEditIndex(index);
     setForm({
@@ -95,24 +129,18 @@ export const MotoristaDadosPage = () => {
     });
   };
 
-  const cancelar = () => {
-    setEditIndex(null);
-    setForm(null);
-    setFeedback(null);
-  };
+  const cancelar = () => { setEditIndex(null); setForm(null); };
 
   const handleSalvar = async () => {
     if (!form || !empresa) return;
     setSalvando(true);
-    setFeedback(null);
     try {
-      // Payload limpo: telefone só dígitos, empresa_id vem do contexto
       const payload: MotoristaUpdatePayload = {
         empresa_id:      empresa.id,
         nome:            form.nome.trim(),
         cpf:             apenasDigitos(form.cpf),
         cnh:             form.cnh.trim(),
-        telefone:        apenasDigitos(form.telefone), // ← garante só dígitos
+        telefone:        apenasDigitos(form.telefone),
         ativo:           form.ativo,
         modelo_caminhao: form.modelo_caminhao.trim(),
         ano_caminhao:    form.ano_caminhao,
@@ -122,17 +150,17 @@ export const MotoristaDadosPage = () => {
 
       if (editIndex === -1) {
         await motoristaService.create(payload, empresa.id);
+        showToast("sucesso", "Motorista adicionado com sucesso!");
       } else if (editIndex !== null) {
         await motoristaService.update(motoristas[editIndex].id, payload, empresa.id);
+        showToast("sucesso", "Dados do motorista atualizados!");
       }
 
       await refetch();
       setEditIndex(null);
       setForm(null);
-      setFeedback({ tipo: "sucesso", msg: "Motorista salvo com sucesso!" });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro inesperado";
-      setFeedback({ tipo: "erro", msg });
+      showToast("erro", err instanceof Error ? err.message : "Erro inesperado");
     } finally {
       setSalvando(false);
     }
@@ -143,240 +171,179 @@ export const MotoristaDadosPage = () => {
     try {
       await motoristaService.delete(id, empresa.id);
       await refetch();
-      setFeedback({ tipo: "sucesso", msg: "Motorista removido." });
+      showToast("sucesso", "Motorista removido.");
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro ao excluir";
-      setFeedback({ tipo: "erro", msg });
+      showToast("erro", err instanceof Error ? err.message : "Erro ao excluir");
     }
   };
 
-  // ── Render ───────────────────────────────────────────────
-
   if (loading) return <Skeleton />;
-  if (error)   return <FeedbackBanner tipo="erro" msg={error} />;
+  if (error)   return <InlineError msg={error} />;
 
   return (
-    <PageShell
-      titulo="Motoristas"
-      subtitulo="Gerencie os motoristas vinculados à empresa."
-      acao={
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/home")}
-            className={btnCls("outline")}
-          >
-            ← Voltar
-          </button>
-          <button
-            onClick={startCreate}
-            className={btnCls("primary")}
-          >
+    <>
+      <style>{`
+        @keyframes toast-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      {toast && <Toast tipo={toast.tipo} msg={toast.msg} onClose={() => setToast(null)} />}
+
+      <PageShell
+        titulo="Motoristas"
+        subtitulo="Gerencie os motoristas vinculados à empresa."
+        acao={
+          <button onClick={startCreate} className={btnCls("primary")}>
             + Adicionar Motorista
           </button>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-5">
+        }
+      >
+        <div className="max-w-5xl mx-auto w-full flex flex-col gap-5">
 
-        {/* Feedback global */}
-        {feedback && (
-          <FeedbackBanner tipo={feedback.tipo} msg={feedback.msg} />
-        )}
+          {editIndex !== null && form ? (
+            <div className="bg-white dark:bg-neutral-900 border border-[#FE751B]/25 rounded-xl p-6 flex flex-col gap-5">
+              <p className="text-[#FE751B] font-semibold text-sm">
+                {editIndex === -1 ? "Novo Motorista" : "Editar Motorista"}
+              </p>
 
-        {/* Formulário (criar / editar) */}
-        {editIndex !== null && form ? (
-          <div className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6 flex flex-col gap-5">
-            <p className="text-orange-500 font-semibold text-sm">
-              {editIndex === -1 ? "Novo Motorista" : "Editar Motorista"}
-            </p>
-
-            {/* Campos texto */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Nome completo">
-                <input
-                  className={inputCls}
-                  placeholder="João da Silva"
-                  value={form.nome}
-                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                />
-              </Field>
-
-              <Field label="CPF">
-                <input
-                  className={inputCls}
-                  placeholder="000.000.000-00"
-                  value={form.cpfDisplay}
-                  onChange={(e) => {
-                    const display = mascaraCPF(e.target.value);
-                    setForm({ ...form, cpfDisplay: display, cpf: apenasDigitos(display) });
-                  }}
-                />
-              </Field>
-
-              <Field label="CNH">
-                <input
-                  className={inputCls}
-                  placeholder="Número da CNH"
-                  value={form.cnh}
-                  onChange={(e) => setForm({ ...form, cnh: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Telefone (WhatsApp)">
-                <input
-                  className={inputCls}
-                  placeholder="(71) 99999-0000"
-                  value={form.telefoneDisplay}
-                  onChange={(e) => {
-                    const display = mascaraTelefone(e.target.value);
-                    setForm({
-                      ...form,
-                      telefoneDisplay: display,
-                      telefone: apenasDigitos(display),
-                    });
-                  }}
-                />
-              </Field>
-
-              <Field label="Modelo do caminhão">
-                <input
-                  className={inputCls}
-                  placeholder="Volvo FH 460"
-                  value={form.modelo_caminhao}
-                  onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Ano do caminhão">
-                <input
-                  className={inputCls}
-                  type="number"
-                  min={1980}
-                  max={new Date().getFullYear() + 1}
-                  value={form.ano_caminhao}
-                  onChange={(e) => setForm({ ...form, ano_caminhao: Number(e.target.value) })}
-                />
-              </Field>
-
-              <Field label="Cor do caminhão">
-                <input
-                  className={inputCls}
-                  placeholder="Branco"
-                  value={form.cor_caminhao}
-                  onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })}
-                />
-              </Field>
-
-              <Field label="Placa do caminhão">
-                <input
-                  className={inputCls}
-                  placeholder="ABC-1234"
-                  value={form.placa_caminhao}
-                  onChange={(e) =>
-                    setForm({ ...form, placa_caminhao: e.target.value.toUpperCase() })
-                  }
-                />
-              </Field>
-            </div>
-
-            {/* Status ativo */}
-            <Field label="Status">
-              <div className="flex gap-3">
-                {[true, false].map((val) => (
-                  <button
-                    key={String(val)}
-                    type="button"
-                    onClick={() => setForm({ ...form, ativo: val })}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors
-                      ${form.ativo === val
-                        ? "bg-orange-500 text-white border-orange-500"
-                        : "bg-black text-orange-500 border-orange-500/40 hover:border-orange-500"
-                      }`}
-                  >
-                    {val ? "Ativo" : "Inativo"}
-                  </button>
-                ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Nome completo">
+                  <input className={inputCls} placeholder="João da Silva"
+                    value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+                </Field>
+                <Field label="CPF">
+                  <input className={inputCls} placeholder="000.000.000-00"
+                    value={form.cpfDisplay}
+                    onChange={(e) => {
+                      const d = mascaraCPF(e.target.value);
+                      setForm({ ...form, cpfDisplay: d, cpf: apenasDigitos(d) });
+                    }} />
+                </Field>
+                <Field label="CNH">
+                  <input className={inputCls} placeholder="Número da CNH"
+                    value={form.cnh} onChange={(e) => {
+                      const d = mascaraCnh(e.target.value);
+                      setForm({ ...form, cnh: d });
+                    }} />
+                </Field>
+                <Field label="Telefone (WhatsApp)">
+                  <input className={inputCls} placeholder="(71) 99999-0000"
+                    value={form.telefoneDisplay}
+                    onChange={(e) => {
+                      const d = mascaraTelefone(e.target.value);
+                      setForm({ ...form, telefoneDisplay: d, telefone: apenasDigitos(d) });
+                    }} />
+                </Field>
+                <Field label="Modelo do caminhão">
+                  <input className={inputCls} placeholder="Volvo FH 460"
+                    value={form.modelo_caminhao}
+                    onChange={(e) => setForm({ ...form, modelo_caminhao: e.target.value })} />
+                </Field>
+                <Field label="Ano do caminhão">
+                  <input className={inputCls} type="number" min={1980} max={new Date().getFullYear() + 1}
+                    value={form.ano_caminhao}
+                    onChange={(e) => setForm({ ...form, ano_caminhao: Number(e.target.value) })} />
+                </Field>
+                <Field label="Cor do caminhão">
+                  <input className={inputCls} placeholder="Branco"
+                    value={form.cor_caminhao}
+                    onChange={(e) => setForm({ ...form, cor_caminhao: e.target.value })} />
+                </Field>
+                <Field label="Placa do caminhão">
+                  <input className={inputCls} placeholder="ABC-1234"
+                    value={form.placa_caminhao}
+                    onChange={(e) => {
+                      const d = placaCaminhao(e.target.value);
+                      setForm({ ...form, placa_caminhao: d });
+                    }}
+                     
+                     />
+                </Field>
               </div>
-            </Field>
 
-            {/* Ações do form */}
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={handleSalvar}
-                disabled={salvando}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold
-                           bg-orange-500 text-white hover:bg-orange-600
-                           disabled:opacity-50 transition-colors"
-              >
-                {salvando ? "Salvando…" : "Salvar"}
-              </button>
-              <button
-                onClick={cancelar}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold
-                           bg-black text-red-500 border border-red-500
-                           hover:bg-red-600 hover:text-white transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-
-        ) : (
-
-          /* Lista de motoristas */
-          motoristas.length === 0 ? (
-            <div className="text-center py-16 text-gray-500 dark:text-neutral-500 text-sm">
-              Nenhum motorista cadastrado. Clique em &quot;+ Adicionar Motorista&quot; para começar.
-            </div>
-          ) : (
-            motoristas.map((m, index) => (
-              <div
-                key={m.id}
-                className="bg-neutral-900 border border-orange-500/30 rounded-xl p-6"
-              >
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-                  <InfoItem label="Nome"    value={m.nome} />
-                  <InfoItem label="CPF"     value={mascaraCPF(m.cpf ?? "")} />
-                  <InfoItem label="CNH"     value={m.cnh} />
-                  <InfoItem label="Telefone" value={mascaraTelefone(m.telefone ?? "")} />
-                  <InfoItem label="Placa"   value={m.placa_caminhao} />
-                  <InfoItem label="Modelo"  value={m.modelo_caminhao} />
-                  <InfoItem label="Cor"     value={m.cor_caminhao} />
-                  <InfoItem label="Ano"     value={String(m.ano_caminhao)} />
+              <Field label="Status">
+                <div className="flex gap-3">
+                  {[true, false].map((val) => (
+                    <button key={String(val)} type="button"
+                      onClick={() => setForm({ ...form, ativo: val })}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-colors
+                        ${form.ativo === val
+                          ? "bg-[#FE751B] text-white border-[#FE751B]"
+                          : "bg-white dark:bg-neutral-900 text-[#FE751B] border-[#FE751B]/30 hover:border-[#FE751B]"
+                        }`}>
+                      {val ? "Ativo" : "Inativo"}
+                    </button>
+                  ))}
                 </div>
+              </Field>
 
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full
-                    ${m.ativo
-                      ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                      : "bg-red-500/10 text-red-400 border border-red-500/20"
-                    }`}>
-                    {m.ativo ? "Ativo" : "Inativo"}
-                  </span>
+              <div className="flex gap-2 pt-1">
+                <button onClick={handleSalvar} disabled={salvando}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold
+                             bg-[#FE751B] text-white hover:bg-orange-600
+                             disabled:opacity-50 transition-colors">
+                  {salvando ? "Salvando…" : "Salvar"}
+                </button>
+                <button onClick={cancelar}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold
+                             bg-white dark:bg-neutral-900 text-red-500 border border-red-500
+                             hover:bg-red-600 hover:text-white transition-colors">
+                  Cancelar
+                </button>
+              </div>
+            </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => startEdit(index)}
-                      className={btnCls("outline")}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleExcluir(m.id)}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold
-                                 bg-black text-red-500 border border-red-500
-                                 hover:bg-red-600 hover:text-white transition-colors"
-                    >
-                      Excluir
-                    </button>
+          ) : (
+            motoristas.length === 0 ? (
+              <div className="text-center py-16 text-gray-400 dark:text-neutral-500 text-sm">
+                Nenhum motorista cadastrado. Clique em &quot;+ Adicionar Motorista&quot; para começar.
+              </div>
+            ) : (
+              motoristas.map((m, index) => (
+                <div key={m.id}
+                  className="bg-white dark:bg-neutral-900
+                             border border-black/[0.06] dark:border-white/[0.05]
+                             rounded-xl p-5 hover:border-[#FE751B]/30 transition-colors">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                    <InfoItem label="Nome"     value={m.nome} />
+                    <InfoItem label="CPF"      value={mascaraCPF(m.cpf ?? "")} />
+                    <InfoItem label="CNH"      value={m.cnh} />
+                    <InfoItem label="Telefone" value={mascaraTelefone(m.telefone ?? "")} />
+                    <InfoItem label="Placa"    value={m.placa_caminhao} />
+                    <InfoItem label="Modelo"   value={m.modelo_caminhao} />
+                    <InfoItem label="Cor"      value={m.cor_caminhao} />
+                    <InfoItem label="Ano"      value={String(m.ano_caminhao)} />
+                  </div>
+                  <div className="flex items-center justify-between pt-3
+                                  border-t border-black/[0.05] dark:border-white/[0.05]">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full
+                      ${m.ativo
+                        ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                        : "bg-red-500/10 text-red-500 dark:text-red-400 border border-red-500/20"
+                      }`}>
+                      {m.ativo ? "Ativo" : "Inativo"}
+                    </span>
+                    <div className="flex gap-2">
+                      <button onClick={() => startEdit(index)} className={btnCls("outline")}>
+                        Editar
+                      </button>
+                      <button onClick={() => handleExcluir(m.id)}
+                        className="px-4 py-2 rounded-lg text-sm font-semibold
+                                   bg-white dark:bg-neutral-900 text-red-500 border border-red-500
+                                   hover:bg-red-600 hover:text-white transition-colors">
+                        Excluir
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )
-        )}
-      </div>
-    </PageShell>
+              ))
+            )
+          )}
+        </div>
+      </PageShell>
+    </>
   );
 };
 
@@ -384,22 +351,21 @@ export const MotoristaDadosPage = () => {
 
 const inputCls = `
   w-full px-3 py-2 rounded-lg text-sm
-  bg-black text-orange-500
-  border border-orange-500/50
-  placeholder:text-gray-600
-  focus:outline-none focus:ring-2 focus:ring-orange-500/40
-  focus:border-orange-500
+  bg-white dark:bg-neutral-950 text-gray-900 dark:text-orange-400
+  border border-[#FE751B]/40
+  placeholder:text-gray-400 dark:placeholder:text-gray-600
+  focus:outline-none focus:ring-2 focus:ring-[#FE751B]/30 focus:border-[#FE751B]
   transition
 `;
 
 const btnCls = (variant: "primary" | "outline") =>
   variant === "primary"
-    ? "px-4 py-2 rounded-lg text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-    : "px-4 py-2 rounded-lg text-sm font-semibold bg-black text-orange-500 border border-orange-500 hover:bg-orange-600 hover:text-white transition-colors";
+    ? "px-4 py-2 rounded-lg text-sm font-semibold bg-[#FE751B] text-white hover:bg-orange-600 transition-colors"
+    : "px-4 py-2 rounded-lg text-sm font-semibold bg-white dark:bg-neutral-900 text-[#FE751B] border border-[#FE751B]/50 hover:bg-[#FE751B] hover:text-white transition-colors";
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-[11px] font-semibold uppercase tracking-wider text-orange-500/70">
+    <label className="text-[11px] font-semibold uppercase tracking-wider text-[#FE751B]/70">
       {label}
     </label>
     {children}
@@ -408,27 +374,28 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 
 const InfoItem = ({ label, value }: { label: string; value?: string | null }) => (
   <div>
-    <p className="text-[10px] font-semibold uppercase tracking-wider text-orange-500/60 mb-0.5">
+    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#FE751B]/50 mb-0.5">
       {label}
     </p>
-    <p className="text-sm text-white">{value || "—"}</p>
+    <p className="text-sm text-gray-900 dark:text-neutral-100">{value || "—"}</p>
   </div>
 );
 
-const FeedbackBanner = ({ tipo, msg }: { tipo: "erro" | "sucesso"; msg: string }) => (
-  <p className={`text-[12px] rounded-lg px-3 py-2 border
-    ${tipo === "erro"
-      ? "text-red-400 bg-red-500/10 border-red-500/20"
-      : "text-green-400 bg-green-500/10 border-green-500/20"
-    }`}>
+const InlineError = ({ msg }: { msg: string }) => (
+  <div className="flex flex-col items-center justify-center gap-3 py-20 text-sm text-red-400">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
     {msg}
-  </p>
+  </div>
 );
 
 const Skeleton = () => (
-  <div className="max-w-2xl mx-auto px-5 py-8 animate-pulse flex flex-col gap-4">
-    <p className="text-center text-gray-500 dark:text-neutral-400">Carregando dados...</p>
-    <div className="h-6 w-48 rounded bg-neutral-800" />
-    <div className="h-64 rounded-xl bg-neutral-800" />
+  <div className="max-w-5xl mx-auto w-full px-5 py-8 animate-pulse flex flex-col gap-4">
+    <div className="h-6 w-48 rounded bg-gray-200 dark:bg-neutral-800" />
+    <div className="h-64 rounded-xl bg-gray-200 dark:bg-neutral-800" />
   </div>
 );

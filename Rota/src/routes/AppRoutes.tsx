@@ -14,17 +14,15 @@ import { MotoristaProvider } from "../contexts/MotoristaProvider";
 import RotaTermosDeUso from "../pages/RotaTermosDeUso/RotaTermosDeUso";
 import RotaPoliticaDePrivacidade from "../pages/RotaPoliticaDePrivacidade/RotaPoliticaDePrivacidade";
 
-
 export function AppRoutes() {
   const { state } = useAuth();
-
-  const isAuthenticated = !!state.user; // fonte de verdade
+  const isAuthenticated = !!state.user;
 
   return (
     <BrowserRouter>
-   
       <Routes>
-        {/* Rotas públicas */}
+
+        {/* ── Rotas públicas ──────────────────────────────── */}
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/home" replace /> : <LoginRota />}
@@ -33,50 +31,49 @@ export function AppRoutes() {
           path="/cadastro"
           element={isAuthenticated ? <Navigate to="/home" replace /> : <CadastroRota />}
         />
+        <Route path="/esqueci-senha"   element={<EsqueciSenhaRota />} />
+        <Route path="/nova-senha"      element={<NovaSenhaRota />} />
+        <Route path="/rotaTermos"      element={<RotaTermosDeUso />} />
+        <Route path="/rotaPrivacidade" element={<RotaPoliticaDePrivacidade />} />
 
-        {/* Rota protegida */}
+        {/* ── Rotas protegidas — dentro do layout Home ────── */}
+        {/* Todas as rotas aqui herdam Header + Sidebar + Footer */}
         <Route
-          path="/home"
+          path="/"
           element={
             <ProtectedRoute>
               <Home />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Dashboard principal */}
+          <Route path="home" element={null} />
 
-      <Route path="/esqueci-senha" element={<EsqueciSenhaRota />} />
-      <Route path="/nova-senha" element={<NovaSenhaRota />} />
-      
-      <Route path="/rotaTermos" element={<RotaTermosDeUso />} />
-      <Route path="/rotaPrivacidade" element={<RotaPoliticaDePrivacidade />} />
+          {/* Empresa */}
+          <Route
+            path="empresa/dados"
+            element={
+              <EmpresaProvider>
+                <EmpresaDadosPage />
+              </EmpresaProvider>
+            }
+          />
+
+          {/* Motoristas */}
+          <Route
+            path="motorista/Inicial"
+            element={
+              <MotoristaProvider>
+                <MotoristaDadosPage />
+              </MotoristaProvider>
+            }
+          />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-          
-     
- <Route
-  path="/empresa/dados"
-  element={
-    <EmpresaProvider>
-      <EmpresaDadosPage />
-    </EmpresaProvider>
-  }
-/>
-
-      <Route
-  path="/motorista/Inicial"
-  element={
-    <MotoristaProvider>
-      <MotoristaDadosPage />
-    </MotoristaProvider>
-  }
-/>
-      
-      
-  
 
       </Routes>
-     
     </BrowserRouter>
   );
 }

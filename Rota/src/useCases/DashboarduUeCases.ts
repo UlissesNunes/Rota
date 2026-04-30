@@ -12,10 +12,10 @@ export type DashboardViewModel = {
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  pendente:     'Pendente',
-  em_andamento: 'Em andamento',
-  concluida:    'Concluída',
-  cancelada:    'Cancelada',
+  pendente:     "Pendente",
+  em_andamento: "Em andamento",
+  concluida:    "Concluída",
+  cancelada:    "Cancelada",
 };
 
 export function buildDashboardData(
@@ -25,15 +25,41 @@ export function buildDashboardData(
   onboarding: OnboardingStep[],
 ): DashboardViewModel {
 
-  const viagensAtivas     = viagens.filter((v) => v.status === 'em_andamento').length;
-  const viagensConcluidas = viagens.filter((v) => v.status === 'concluida').length;
-  const stepsFeitos       = onboarding.filter((s) => s.concluido).length;
+  const viagensAtivas     = viagens.filter((v) => v.status === "em_andamento").length;
+  const viagensConcluidas = viagens.filter((v) => v.status === "concluida").length;
+  const viagensFinalizadas = viagens.filter(
+    (v) => v.status === "concluida" || v.status === "cancelada"
+  ).length;
+
+  // Taxa de conclusão = concluídas / (concluídas + canceladas) × 100
+  // Retorna 0 quando não há viagens finalizadas para evitar NaN
+  const taxaConclusao = viagensFinalizadas > 0
+    ? Math.round((viagensConcluidas / viagensFinalizadas) * 100)
+    : 0;
 
   const kpis: KPIViewModel[] = [
-    { label: 'Viagens ativas',      value: viagensAtivas     || '—', hint: 'Em andamento agora'   },
-    { label: 'Motoristas',          value: motoristas.length || '—', hint: 'Equipe cadastrada'     },
-    { label: 'Entregas concluídas', value: viagensConcluidas || '—', hint: 'Total histórico'       },
-    { label: 'Setup',               value: `${stepsFeitos}/${onboarding.length}`, hint: 'Passos concluídos' },
+    {
+      label: "Viagens ativas",
+      value: viagensAtivas || 0,
+      hint:  "Em andamento agora",
+    },
+    {
+      label: "Motoristas",
+      value: motoristas.length || 0,
+      hint:  "Equipe cadastrada",
+    },
+    {
+      label: "Entregas concluídas",
+      value: viagensConcluidas || 0,
+      hint:  "Total histórico",
+    },
+    {
+      label: "Taxa de conclusão",
+      value: taxaConclusao,
+      hint:  viagensFinalizadas > 0
+        ? `${viagensConcluidas} de ${viagensFinalizadas} finalizadas`
+        : "Nenhuma viagem finalizada",
+    },
   ];
 
   // Agrupa viagens por status para o gráfico de barras

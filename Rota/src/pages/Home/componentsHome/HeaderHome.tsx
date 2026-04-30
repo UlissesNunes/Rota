@@ -1,9 +1,11 @@
 // src/pages/Home/componentsHome/HeaderHome.tsx
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Menu, Plus, User, LogOut, Settings } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Menu, Plus, LogOut, Settings } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { LogoutButton } from "../LogoutHome";
+
+// ── Tipos / constantes ────────────────────────────────────────────────────────
 
 type AddItem = { label: string; to: string };
 
@@ -18,6 +20,8 @@ type HeaderHomeProps = {
   user?: SupabaseUser | null;
 };
 
+// ── Hook utilitário ───────────────────────────────────────────────────────────
+
 function useClickOutside(ref: React.RefObject<HTMLElement>, handler: () => void) {
   useEffect(() => {
     const listener = (e: MouseEvent) => {
@@ -27,6 +31,44 @@ function useClickOutside(ref: React.RefObject<HTMLElement>, handler: () => void)
     return () => document.removeEventListener("mousedown", listener);
   }, [ref, handler]);
 }
+
+// ── Dropdown compartilhado ────────────────────────────────────────────────────
+
+const DropdownShell = ({ children }: { children: React.ReactNode }) => (
+  <div className="absolute right-0 top-[calc(100%+6px)] min-w-[188px] z-50
+                  bg-white dark:bg-[#161614]
+                  border border-black/[0.07] dark:border-white/[0.07]
+                  rounded-xl shadow-lg shadow-black/[0.06]
+                  overflow-hidden animate-[fade-in_0.12s_ease]">
+    {children}
+  </div>
+);
+
+const DropdownItem = ({
+  icon,
+  label,
+  onClick,
+  danger,
+}: {
+  icon: React.ReactNode;
+  label?: React.ReactNode;
+  onClick?: () => void;
+  danger?: boolean;
+}) => (
+  <li
+    onClick={onClick}
+    className={`flex items-center gap-2.5 px-4 py-2 text-[13px] cursor-pointer transition-colors
+      ${danger
+        ? "text-red-500 dark:text-red-400 hover:bg-red-500/08"
+        : "text-gray-600 dark:text-[#bbb] hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-gray-900 dark:hover:text-white"
+      }`}
+  >
+    <span className="flex-shrink-0 opacity-70">{icon}</span>
+    {label}
+  </li>
+);
+
+// ── Componente principal ──────────────────────────────────────────────────────
 
 export const HeaderHome = ({ onToggleSidebar, user }: HeaderHomeProps) => {
   const navigate = useNavigate();
@@ -44,108 +86,125 @@ export const HeaderHome = ({ onToggleSidebar, user }: HeaderHomeProps) => {
     user?.email?.split("@")[0] ||
     "Perfil";
 
+  // Inicial do avatar
+  const inicial = primeiroNome.charAt(0).toUpperCase();
+
   return (
-    <header className="
-      w-full h-16 flex items-center justify-between px-5 flex-shrink-0 z-30
-      bg-white dark:bg-black
-      border-b border-black/[0.06] dark:border-white/[0.06]
-    ">
+    <>
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
 
-      {/* Esquerda: hamburger + logo */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onToggleSidebar}
-          className="p-1.5 rounded-md text-gray-400 dark:text-[#888]
-                     hover:text-[#FE751B] dark:hover:text-[#FE751B] transition-colors"
-        >
-          <Menu size={22} />
-        </button>
-        <img src="/rotaicone.webp" alt="Rota" className="h-7 w-auto" />
-      </div>
+      <header className="
+        w-full h-14 flex items-center justify-between px-4 flex-shrink-0 z-30
+        bg-white dark:bg-black
+        border-b border-black/[0.06] dark:border-white/[0.05]
+      ">
 
-      {/* Direita: ações */}
-      <div className="flex items-center gap-2">
-
-        {/* Botão Adicionar */}
-        <div ref={addRef} className="relative">
+        {/* ── Esquerda: hamburger + logo ─────────────────────── */}
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => { setOpenAdd(v => !v); setOpenUser(false); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                       text-sm font-semibold text-[#FE751B]
-                       bg-[#FE751B]/10 border border-[#FE751B]/25
-                       hover:bg-[#FE751B]/20 transition-colors"
+            onClick={onToggleSidebar}
+            className="p-1.5 rounded-md
+                       text-gray-400 dark:text-[#555]
+                       hover:text-[#FE751B] dark:hover:text-[#FE751B]
+                       transition-colors"
           >
-            <Plus size={15} strokeWidth={2.5} />
-            Adicionar
+            <Menu size={20} />
           </button>
-
-          {openAdd && (
-            <div className="absolute right-0 top-[calc(100%+8px)] min-w-[180px] z-50
-                            bg-white dark:bg-[#1a1918]
-                            border border-black/[0.08] dark:border-white/[0.08]
-                            rounded-xl shadow-xl overflow-hidden">
-              <ul className="py-1">
-                {ADD_ITEMS.map((item) => (
-                  <li
-                    key={item.to}
-                    onClick={() => { navigate(item.to); setOpenAdd(false); }}
-                    className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer
-                               text-gray-700 dark:text-[#ccc]
-                               hover:bg-[#FE751B]/10 hover:text-[#FE751B]
-                               transition-colors"
-                  >
-                    {item.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <Link to="/home">
+          <img src="/rotaicone.webp" alt="Rota" className="h-6 w-auto" />
+        </Link>
         </div>
 
-        {/* Menu do usuário */}
-        <div ref={userRef} className="relative">
-          <button
-            onClick={() => { setOpenUser(v => !v); setOpenAdd(false); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium
-                       text-gray-600 dark:text-[#ccc]
-                       bg-black/5 dark:bg-white/5
-                       border border-black/[0.08] dark:border-white/[0.08]
-                       hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-          >
-            <User size={15} />
-            {primeiroNome}
-          </button>
+        {/* ── Direita: ações ────────────────────────────────── */}
+        <div className="flex items-center gap-1.5">
 
-          {openUser && (
-            <div className="absolute right-0 top-[calc(100%+8px)] min-w-[180px] z-50
-                            bg-white dark:bg-[#1a1918]
-                            border border-black/[0.08] dark:border-white/[0.08]
-                            rounded-xl shadow-xl overflow-hidden">
-              <ul className="py-1">
-                <li
-                  onClick={() => { navigate("/sistema/configuracoes"); setOpenUser(false); }}
-                  className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer
-                             text-gray-700 dark:text-[#ccc]
-                             hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                >
-                  <Settings size={14} />
-                  Configurações
-                </li>
+          {/* Botão Adicionar */}
+          <div ref={addRef} className="relative">
+            <button
+              onClick={() => { setOpenAdd(v => !v); setOpenUser(false); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+                         text-[13px] font-semibold text-[#FE751B]
+                         bg-[#FE751B]/10 border border-[#FE751B]/20
+                         hover:bg-[#FE751B]/18 hover:border-[#FE751B]/35
+                         transition-colors"
+            >
+              <Plus size={14} strokeWidth={2.5} />
+              Adicionar
+            </button>
 
-                <li className="border-t border-black/[0.06] dark:border-white/[0.06] my-1" />
+            {openAdd && (
+              <DropdownShell>
+                <ul className="py-1">
+                  {ADD_ITEMS.map((item) => (
+                    <DropdownItem
+                      key={item.to}
+                      icon={<Plus size={13} strokeWidth={2} />}
+                      label={item.label}
+                      onClick={() => { navigate(item.to); setOpenAdd(false); }}
+                    />
+                  ))}
+                </ul>
+              </DropdownShell>
+            )}
+          </div>
 
-                <li className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer
-                               text-red-500 dark:text-red-400
-                               hover:bg-red-500/10 transition-colors">
-                  <LogOut size={14} />
-                  <LogoutButton />
-                </li>
-              </ul>
-            </div>
-          )}
+          {/* Divider */}
+          <span className="w-px h-5 bg-black/[0.08] dark:bg-white/[0.08] mx-0.5" />
+
+          {/* Menu do usuário */}
+          <div ref={userRef} className="relative">
+            <button
+              onClick={() => { setOpenUser(v => !v); setOpenAdd(false); }}
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg
+                         text-[13px] font-medium
+                         text-gray-600 dark:text-[#bbb]
+                         hover:bg-black/[0.04] dark:hover:bg-white/[0.04]
+                         hover:text-gray-900 dark:hover:text-white
+                         transition-colors"
+            >
+              {/* Avatar circular com inicial */}
+              <span className="w-6 h-6 rounded-full flex items-center justify-center
+                               bg-[#FE751B]/15 text-[#FE751B]
+                               text-[11px] font-bold flex-shrink-0">
+                {inicial}
+              </span>
+              {primeiroNome}
+            </button>
+
+            {openUser && (
+              <DropdownShell>
+                {/* Cabeçalho do dropdown com email */}
+                {user?.email && (
+                  <div className="px-4 py-2.5 border-b border-black/[0.06] dark:border-white/[0.06]">
+                    <p className="text-[11px] text-gray-400 dark:text-[#555] truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                )}
+                <ul className="py-1">
+                  <DropdownItem
+                    icon={<Settings size={13} />}
+                    label="Configurações"
+                    onClick={() => { navigate("/sistema/configuracoes"); setOpenUser(false); }}
+                  />
+                  <li className="mx-3 my-1 border-t border-black/[0.06] dark:border-white/[0.06]" />
+                  <DropdownItem
+                    icon={<LogOut size={13} />}
+                    label={<LogoutButton />}
+                    danger
+                  />
+                </ul>
+              </DropdownShell>
+            )}
+          </div>
+
         </div>
-
-      </div>
-    </header>
+      </header>
+    </>
   );
 };
