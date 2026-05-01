@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { motoristaService } from "../motorista/Service/motoristaService";
 import { useEmpresa } from "../../contexts/useEmpresa";
 import type { Motorista } from "../motorista/Types/motoristaTypes";
-import { useViagensForm } from "./HooksViagens/useViagens";
+
 import type { ViagemCreateInput } from "./Types/TypesViagens";
+import { useViagensForm } from "./hooksViagens/useViagens";
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
