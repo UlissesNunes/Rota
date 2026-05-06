@@ -14,6 +14,7 @@ import { MotoristaProvider } from "../contexts/MotoristaProvider";
 import { ViagemNovaPage } from "../pages/viagens/ViagemNovaPage";
 import RotaTermosDeUso from "../pages/RotaTermosDeUso/RotaTermosDeUso";
 import RotaPoliticaDePrivacidade from "../pages/RotaPoliticaDePrivacidade/RotaPoliticaDePrivacidade";
+import MeuWhatsappPage from "../pages/meuWhatsapp/MeuWhatsappPage";
 
 export function AppRoutes() {
   const { state } = useAuth();
@@ -74,6 +75,12 @@ export function AppRoutes() {
   path="viagens/nova"
   element={<ViagemNovaPage />}
 />
+
+{/* Meu WhatsApp */}
+          <Route
+            path="meu-whatsapp"
+            element={<MeuWhatsappPage />}
+          />
         </Route>
 
         {/* Fallback */}
